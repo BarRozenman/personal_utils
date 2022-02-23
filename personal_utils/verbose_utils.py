@@ -10,7 +10,7 @@ class objectview(object):
 class verbose_manager():
     @property
     def vprint(self):
-        from personal_utils.flags import flags
+        from flags import flags
 
         if flags.verbose:
             def _vprint(*args, **kwargs):
@@ -20,7 +20,7 @@ class verbose_manager():
         return _vprint
     @property
     def vplt(self):
-        from personal_utils.flags import flags
+        from flags import flags
         if flags.verbose:
             _vplt = plt
         else:

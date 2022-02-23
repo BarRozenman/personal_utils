@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 /.idea/
+    
 # Distribution / packaging
 .Python
 build/
@@ -114,7 +115,3 @@ dmypy.json
 .pyre/
 personal_utils/legacy/legacy.py
 personal_utils/legacy/__init__.py
-*.iml
-.idea/workspace.xml
-legacy/legacy.py
-legacy/__init__.py
