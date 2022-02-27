@@ -1,14 +1,35 @@
+from dataclasses import dataclass
 from datetime import datetime
-# TODO change this
 
+
+# from brv_constants.flags import flags
+
+# TODO change this
+@dataclass
 class Flags(object):
     """
+    class that holds global variables that can be access int any place in the run
     eval_subset_size: [bool,int], take a subset of the total dataset to run, use int to choose the subset size
     """
+    debug: bool = False
+    verbose: bool = False
+    timestamp: str = None
+    timestamp_seconds: str = None
+    use_multi_process: bool = True
+    overwrite: bool = False
+    use_cache: bool = False
+    eval_subset_size: int = None
+    counter: int = 0
+    mlflow_run_id: str = None
+    random_seed: int = None
 
-    def __init__(self, items_dict):
-        for key, val in items_dict.items():
-            setattr(self, key, val)
+    def __post_init__(self):
+        self.timestamp = self.get_timestamp_min_str()
+        self.timestamp_seconds = self.get_timestamp_sec_str()
+
+    # def __init__(self, items_dict):
+    #     for key, val in items_dict.items():
+    #         setattr(self, key, val)
 
     def get_dict(self):
         return self.__dict__
@@ -21,22 +42,18 @@ class Flags(object):
     def get_timestamp_sec_str():
         return datetime.now().strftime("%Y-%m-%d_%H%M-%S")
 
+    def set_flags_values(self, flags=None):
+        """set the values in the ConfigReader to the flags object (if they exist in the flags object"""
+        # if flags is None:
+        #     flags = self
+        # [
+        #     setattr(flags, k, v)
+        #     for k, v in self.__dict__.items()
+        #     if k in flags.get_dict() and v is not None
+        # ]
+        # return flags
+        pass
 
-TIMESTAMP = Flags.get_timestamp_min_str()
-TIMESTAMP_SECONDS = Flags.get_timestamp_sec_str()
+
 # TODO - eval_subset_size should be renamed to value of relative size (e.g. percentage)
-flags = Flags(
-    {
-        "debug": False,
-        "verbose": False,
-        "timestamp": TIMESTAMP,
-        "timestamp_seconds": TIMESTAMP_SECONDS,
-        "use_multi_process": True,
-        "overwrite": False,
-        "use_cache": False,
-        "eval_subset_size": None,
-        "counter": 0,
-        "mlflow_run_id": None,
-        "random_seed": None,
-    }
-)
+flags = Flags()
