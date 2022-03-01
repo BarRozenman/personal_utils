@@ -27,10 +27,6 @@ class Flags(object):
         self.timestamp = self.get_timestamp_min_str()
         self.timestamp_seconds = self.get_timestamp_sec_str()
 
-    # def __init__(self, items_dict):
-    #     for key, val in items_dict.items():
-    #         setattr(self, key, val)
-
     def get_dict(self):
         return self.__dict__
 
