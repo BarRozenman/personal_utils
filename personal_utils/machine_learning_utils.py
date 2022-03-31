@@ -1,5 +1,8 @@
+import numpy as np
 import pandas as pd
 from featurewiz import featurewiz
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from skpp import ProjectionPursuitRegressor
 
 
@@ -49,3 +52,16 @@ def reduce_dims(x,y):# do to refatcor
     print(f"Index construction: M={p_copy.M}, ef_construction={p_copy.ef_construction}")
     print(f"Index size is {p_copy.element_count} and index capacity is {p_copy.max_elements}")
     print(f"Search speed/quality trade-off parameter: ef={p_copy.ef}")
+
+def pca_dim_reduction(mat, num_dims=5):
+    num_dims = np.min([mat.shape[0], num_dims])
+    pca = PCA(n_components=num_dims, random_state=42)
+    PCA_mat = pca.fit_transform(mat)
+    return PCA_mat
+
+
+def tsne_dim_reduction(mat, num_dims=5):
+    num_dims = np.min([mat.shape[0], num_dims])
+    tsne = TSNE(n_components=num_dims)
+    tsne_results = tsne.fit_transform(mat)
+    return tsne_results
