@@ -3,7 +3,6 @@ import pandas as pd
 from featurewiz import featurewiz
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from skpp import ProjectionPursuitRegressor
 
 
 def feature_selection(data_and_lbls:pd.DataFrame,target_name):
@@ -12,6 +11,8 @@ def feature_selection(data_and_lbls:pd.DataFrame,target_name):
     return features
 
 def reduce_dims(x,y):# do to refatcor
+    from skpp import ProjectionPursuitRegressor
+
     """ like knn but much faster (380 times faster)"""
     estimator = ProjectionPursuitRegressor()
     estimator.fit_transform(x,y)

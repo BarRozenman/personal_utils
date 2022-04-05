@@ -150,7 +150,6 @@ def scatter_clustering_with_gt_labels_in_2d(
 
     """
     logger = logging.getLogger(__name__)
-    title = None
     if cluster_labels is None:
         logger.warning(
             f'argument "cluster_labels" was no set, calculating clusters labels independently'
@@ -235,6 +234,7 @@ def scatter_clustering_with_gt_labels_in_2d(
         fig.suptitle(title)
     plt.title(f"number of samples:{x.shape[0]} \n  number of features:{x.shape[1]}")
     plt.axis("off")
+
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 # def scatter_data_in_3d(features: np.ndarray, labels: np.ndarray, dim_reduction_method='pca'):
 #     if features.shape[1] > 3:

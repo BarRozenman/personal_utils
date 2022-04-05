@@ -1,5 +1,22 @@
 import time
+import signal
 
+import signal
+from contextlib import contextmanager
+
+class TimeoutException(Exception):
+    pass
+
+@contextmanager
+def time_limit(seconds=0,minutes=0):
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds+minutes*60)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
 
 class Timer(object):
     def __init__(self, name=None):
@@ -30,6 +47,8 @@ def timeit_decorator(method, return_seconds=False, return_minutes=False):
         if return_minutes:
             run_time_minutes = run_time_sec / 60
             return result, run_time_minutes
+        elif return_seconds:
+            return result, run_time_sec
         else:
             return result
 
