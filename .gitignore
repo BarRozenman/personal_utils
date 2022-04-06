@@ -118,3 +118,4 @@ personal_utils/legacy/__init__.py
 .idea/workspace.xml
 legacy/legacy.py
 legacy/__init__.py
+.idea/personal_utils.iml

@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
-from featurewiz import featurewiz
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
 
 def feature_selection(data_and_lbls:pd.DataFrame,target_name):
+    from featurewiz import featurewiz
+
     features, train = featurewiz(data_and_lbls, target_name, corr_limit=0.7, verbose=2, sep=",",
     header=0,test_data="", feature_engg="", category_encoders="")
     return features
