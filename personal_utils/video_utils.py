@@ -4,7 +4,6 @@ from typing import Tuple, Dict, List
 import subprocess as sp
 
 import cv2
-import skvideo.io
 
 from personal_utils import file_utils
 from personal_utils.file_utils import append2file_name
@@ -22,7 +21,6 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt, gridspec, cm
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from moviepy.video.io.VideoFileClip import VideoFileClip
 from send2trash import send2trash
 from personal_utils.file_readers import read_video
 
@@ -118,6 +116,8 @@ def extract_video_snippet(
      "3.mp4": [138, 185, 315, 334, 340, 355, 370, 418, 433, 492, 531, 584],
      "4.mp4": [],
     """
+    from moviepy.video.io.VideoFileClip import VideoFileClip
+
     if os.path.exists(cut_times_file) and flags.use_cache:
         logging.getLogger(__name__).info(
             f"using cached cut_times_file - {cut_times_file}"
@@ -343,6 +343,8 @@ def generate_emotional_analysis_frames(
 
 
 def subsample_and_write(filename, out_filename, n_steps):
+    import skvideo.io
+
     """only works for short videos"""
     video_mat = skvideo.io.vread(filename)  # returns a NumPy array
     video_mat = video_mat[::n_steps]  # subsample
@@ -350,6 +352,8 @@ def subsample_and_write(filename, out_filename, n_steps):
 
 
 def split_video_and_write(filename, out_filename, start, end):
+    import skvideo.io
+
     """only works for short videos"""
     video_mat = skvideo.io.vread(filename)  # returns a NumPy array
     video_mat = video_mat[..., start:end]  # subsample
