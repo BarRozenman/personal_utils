@@ -2,8 +2,8 @@ from multiprocessing import Pool
 
 import numpy as np
 import pandas as pd
-
-
+# multiprocessing
+# try using concurrent library here sometime
 class DfParallel():
     def _init_(self,nchunks=50):
         self.nchunks = nchunks

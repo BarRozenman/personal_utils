@@ -11,12 +11,15 @@ class TimeoutException(Exception):
 def time_limit(seconds=0,minutes=0):
     def signal_handler(signum, frame):
         raise TimeoutException("Timed out!")
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds+minutes*60)
     try:
-        yield
-    finally:
-        signal.alarm(0)
+        signal.signal(signal.SIGALRM, signal_handler)
+        signal.alarm(seconds+minutes*60)
+        try:
+            yield
+        finally:
+            signal.alarm(0)
+    except TimeoutException as e:
+        print("Timed out!")
 
 class Timer(object):
     def __init__(self, name=None):
