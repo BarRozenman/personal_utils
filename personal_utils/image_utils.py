@@ -1,6 +1,5 @@
 from typing import Union
 
-import PIL
 import numpy as np
 from PIL import Image
 import json
@@ -15,18 +14,17 @@ import PIL
 import cv2
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import scipy.misc
 from PIL import Image
 
-from personal_utils.ProgressBar import print_progress_bar
-from personal_utils.exceptions import ImageResizingException
-from personal_utils.file_utils import get_all_images_paths_in_dir, update_renaming_doc
-from personal_utils.flags import flags
+from .ProgressBar import print_progress_bar
+from .exceptions import ImageResizingException
+from .file_utils import get_all_images_paths_in_dir, update_renaming_doc
+from .flags import flags
 
 
-from personal_utils import file_utils
+from . import file_utils
 
 
 def image_tracking(im: np.ndarray = None, img_path: str = None) -> np.ndarray:
@@ -519,14 +517,16 @@ if __name__ == "__main__":
     # rename_imgs_by_to_ratio_proximity(input_dir=r"C:\Users\Bar Rozenman\Desktop\DANA",output_dir=r"C:\Users\Bar Rozenman\Desktop\D1")
 
 
-def crop_object(image: Union[PIL.Image.Image, np.ndarray], box: np.ndarray) -> Union[PIL.Image.Image, np.ndarray]:
+def crop_object(
+    image: Union[PIL.Image.Image, np.ndarray], box: np.ndarray
+) -> Union[PIL.Image.Image, np.ndarray]:
     """
-    Crops an object in an image using [left,upper,right,lower] bounding box
+      Crops an object in an image using [left,upper,right,lower] bounding box
 
-  Inputs:
-    image: PIL image
-    box: one box from Detectron2 pred_boxes
-  """
+    Inputs:
+      image: PIL image
+      box: one box from Detectron2 pred_boxes
+    """
     if isinstance(image, np.ndarray):
         image = Image.fromarray(image)
     x_top_left = box[0]
@@ -536,7 +536,9 @@ def crop_object(image: Union[PIL.Image.Image, np.ndarray], box: np.ndarray) -> U
     x_center = (x_top_left + x_bottom_right) / 2
     y_center = (y_top_left + y_bottom_right) / 2
 
-    crop_img = image.crop((int(x_top_left), int(y_top_left), int(x_bottom_right), int(y_bottom_right)))
+    crop_img = image.crop(
+        (int(x_top_left), int(y_top_left), int(x_bottom_right), int(y_bottom_right))
+    )
     if isinstance(image, np.ndarray):
         crop_img = np.asarray(crop_img)
     return crop_img
