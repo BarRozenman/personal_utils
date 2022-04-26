@@ -1,17 +1,10 @@
-import os
-from pathlib import Path
-from typing import Tuple, Dict, List
-import subprocess as sp
-
-import cv2
-
-from personal_utils import file_utils
-from personal_utils.file_utils import append2file_name
 import copy
 import json
 import logging
 import os
+import subprocess as sp
 from pathlib import Path
+from typing import Dict
 from typing import List, Tuple, Union
 
 import cv2
@@ -20,22 +13,21 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt, gridspec, cm
-from matplotlib.backends.backend_agg import FigureCanvasAgg
 from send2trash import send2trash
-from personal_utils.file_readers import read_video
 
-from personal_utils.flags import flags
-from personal_utils.time_utils import timeit_decorator
-
-from personal_utils.image_utils import fig2array
+from . import file_utils
+from .file_utils import append2file_name
+from .flags import flags
+from .image_utils import fig2array
+from .time_utils import timeit_decorator
 
 
 @timeit_decorator
 def extract_frames_from_videos_folder(
-        input_video_folder_path: str,
-        output_frames_folder_path: str,
-        extraction_fps: int = None,
-        num_of_frame_to_extract: int = None,
+    input_video_folder_path: str,
+    output_frames_folder_path: str,
+    extraction_fps: int = None,
+    num_of_frame_to_extract: int = None,
 ):
     """extract frame from whole directory tree to the same folder tree structure"""
     success = file_utils.duplicate_directory_tree(
@@ -46,7 +38,7 @@ def extract_frames_from_videos_folder(
         logging.getLogger(__name__).debug("failed to duplicate directory structure")
         return
     for videos_count, curr_video_path in enumerate(
-            videos_paths
+        videos_paths
     ):  # todo move this loop to external function of extract frames
         try:
             relative_path_to_curr_video = (
@@ -70,10 +62,10 @@ def extract_frames_from_videos_folder(
 
 
 def break_video2frames(
-        curr_video_path: str,
-        output_frames_folder_path: str,
-        extraction_fps: int,
-        num_of_frame_to_extract: str,
+    curr_video_path: str,
+    output_frames_folder_path: str,
+    extraction_fps: int,
+    num_of_frame_to_extract: str,
 ):
     p = Path(curr_video_path)
     curr_video_name = p.name
@@ -90,7 +82,7 @@ def break_video2frames(
         num_of_frame_to_extract = int(num_of_frame_to_extract)
     frame_write_success = True
     for count, sec in enumerate(
-            np.linspace(0, duration - 0.1, num_of_frame_to_extract)
+        np.linspace(0, duration - 0.1, num_of_frame_to_extract)
     ):  # we cant extract frame fto the last second of the video (out of range)
         mili_sec = int(sec * 1000)
         frame_path = f"{output_frames_folder_path}/{Path(curr_video_name).with_suffix('')}_idx_{count}.jpg"
@@ -104,8 +96,8 @@ def break_video2frames(
         frame_write_success = cv2.imwrite(frame_path, image)  # save frame as JPG file
 
 
-def extract_video_snippet(
-        input_video_folder_path, output_folder_path, cut_times_file, cut_video_len=2
+def extract_videos_folder_snippets(
+    input_video_folder_path, output_folder_path, cut_times_file, cut_video_len=2
 ):
     """cut all videos in a dir if a json file with the cut times exists
     , it will cut 2 seconds for each snippet by default
@@ -140,6 +132,30 @@ def extract_video_snippet(
             with VideoFileClip(input_video_path) as video:
                 cut_vid = video.subclip(time, time + cut_video_len)
                 cut_vid.write_videofile(output_video_path, audio_codec="aac")
+
+
+def extract_video_snippet(
+    input_video_path,
+    start_time=None,
+    end_time=None,
+    output_video_path=None,
+    snippet_len=None,
+):
+    from moviepy.video.io.VideoFileClip import VideoFileClip
+
+    if snippet_len is None and end_time is None:
+        raise ValueError("either end_time or snippet_len must be provided")
+    if snippet_len is not None and end_time is None:
+        end_time = start_time + snippet_len
+    details_dict = get_video_details(input_video_path)
+    start_time = 0 if start_time is None else start_time
+    end_time = details_dict["duration"] - 1 if end_time is None else end_time
+    """cut a video snippet from a video"""
+    if output_video_path is None:
+        output_video_path = append2file_name(input_video_path, "snippet")
+    with VideoFileClip(input_video_path) as video:
+        cut_vid = video.subclip(start_time, end_time)
+        cut_vid.write_videofile(output_video_path, audio_codec="aac")
 
 
 def gen_cut_time_data_df(output_folder_path, cut_times_file="cut_times_file.csv"):
@@ -194,10 +210,10 @@ def generate_video_from_frames_array(frames_array: np.ndarray, video_path: str, 
 
 
 def generate_video_from_frames_paths(
-        frames_list: List[str],
-        video_path: Union[str, Path],
-        fps=10,
-        delete_frames_files=False,
+    frames_list: List[str],
+    video_path: Union[str, Path],
+    fps=10,
+    delete_frames_files=False,
 ):
     """combine images given as paths in frames_list to a .mp4 video
     frames_list: List[str] should contain a list of (preferably absolute) paths of existing images ordered as axpcered to apear in the video.
@@ -232,12 +248,12 @@ def generate_video_from_frames_paths(
 
 @timeit_decorator
 def generate_emotional_analysis_frames(
-        frames_index_file_path: str = None,
-        index_file_df: pd.DataFrame = None,
-        frame_amount: int = None,
-        cmap: str = "jet",
-        cols2plot: Tuple = tuple([]),
-        save_frames_and_get_frames_paths=False,
+    frames_index_file_path: str = None,
+    index_file_df: pd.DataFrame = None,
+    frame_amount: int = None,
+    cmap: str = "jet",
+    cols2plot: Tuple = tuple([]),
+    save_frames_and_get_frames_paths=False,
 ):
     """
     takes a file with path to image and an emotional analysis, and create a video that shows the emotional analysis
@@ -280,7 +296,7 @@ def generate_emotional_analysis_frames(
                 # yield frame_name
                 pass  # add overwrite options later
             curr_df = copy.deepcopy(df)
-            curr_df.iloc[count + 1:, :] = np.nan
+            curr_df.iloc[count + 1 :, :] = np.nan
             for inner_count, i in enumerate(curr_df.iteritems()):
                 up_lim = inner_count * 5
                 button_lim = (inner_count * 5) + 4
@@ -296,7 +312,7 @@ def generate_emotional_analysis_frames(
                     ax=ax,
                 )
                 g.set_yticklabels([i[0]], rotation=30)
-            img_ax = plt.subplot(gs[inner_count * 6 + 1:, :])
+            img_ax = plt.subplot(gs[inner_count * 6 + 1 :, :])
             img = plt.imread(img_path)
             img_ax.set_axis_off()
             img_ax.imshow(img)
@@ -382,7 +398,7 @@ def get_every_x_frame_down_sampling(original_fps: int, target_fps: int) -> int:
 
 
 def set_video_cap_to_start_from_frame(video: cv2.VideoCapture, frame_idx: int):
-    """ inplace video cap object  with to tart iterating from a certain frame index"""
+    """inplace video cap object  with to tart iterating from a certain frame index"""
     video.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
     return video
 
@@ -394,19 +410,34 @@ def get_video_details(file_name: str) -> Dict[str, int]:
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / fps)
-    details_dict = {'fps': fps, 'width': width, 'height': height, 'frame_count': frame_count, 'duration': duration}
+    details_dict = {
+        "fps": fps,
+        "width": width,
+        "height": height,
+        "frame_count": frame_count,
+        "duration": duration,
+    }
     return details_dict
 
 
-def combine_output_files(input_videos_paths: List[str], output_path: str, remove_original_files=False):
+def combine_output_files(
+    input_videos_paths: List[str], output_path: str, remove_original_files=False
+):
     # Create a list of output files and store the file names in a txt file
     with open("list_of_output_files.txt", "w") as f:
         for t in input_videos_paths:
             f.write("file {} \n".format(t))
 
     # use ffmpeg to combine the video output files
-    output_path = str(Path(output_path).with_suffix('.mp4')) if not '.' in output_path else output_path
-    ffmpeg_cmd = "ffmpeg -y -loglevel error -f concat -safe 0 -i list_of_output_files.txt -vcodec copy " + output_path
+    output_path = (
+        str(Path(output_path).with_suffix(".mp4"))
+        if not "." in output_path
+        else output_path
+    )
+    ffmpeg_cmd = (
+        "ffmpeg -y -loglevel error -f concat -safe 0 -i list_of_output_files.txt -vcodec copy "
+        + output_path
+    )
     sp.Popen(ffmpeg_cmd, shell=True).wait()
 
     if remove_original_files:
@@ -415,5 +446,5 @@ def combine_output_files(input_videos_paths: List[str], output_path: str, remove
     os.remove("list_of_output_files.txt")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
