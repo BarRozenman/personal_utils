@@ -1,29 +1,74 @@
 import copy
 import itertools
 import logging
+from pathlib import Path
+from typing import Union, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from matplotlib.pyplot import cm
+from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from matplotlib.pyplot import cm
-from matplotlib.pyplot import plot
-from mpl_toolkits.mplot3d import Axes3D
 
-from personal_utils import machine_learning_utils as ml_utils
+from . import machine_learning_utils as ml_utils
 
 """ this line (_ = Axes3D) exists so then we reformat the file we do not delete this import since python doesn't not recognize we use it but we do """
 _ = Axes3D
 
 
-def scatter_data_in_2d(features: np.ndarray, labels: np.ndarray = None, dim_reduction_method='pca',
-                       show_3d_as_size=True):
+def scatter_image(
+    x: float, y: float, image: Union[str, Path, np.ndarray], ax=None, zoom: float = 0.5
+):
+    """show the image at the given coordinates"""
+    if ax is None:
+        ax = plt.gca()
+    try:
+        image = plt.imread(image)
+    except TypeError:
+        # Likely already an array...
+        pass
+    im = OffsetImage(image, zoom=zoom)
+    x, y = np.atleast_1d(x, y)
+    artists = []
+    for x0, y0 in zip(x, y):
+        ab = AnnotationBbox(im, (x0, y0), xycoords="data", frameon=False)
+        artists.append(ax.add_artist(ab))
+    ax.update_datalim(np.column_stack([x, y]))
+    ax.autoscale()
+    return artists
+
+
+def scatter_multiple_images(
+    x: np.ndarray,
+    y: np.ndarray,
+    images: List[str, Path, np.ndarray],
+    ax=None,
+    zoom: float = 0.5,
+):
+    """show the image at the gi ven coordinates"""
+    artists = []
+    for curr_x, curr_y, im in zip(x, y, images):
+        art = scatter_image(curr_x, curr_y, im, ax=ax, zoom=zoom)
+        artists.append(art)
+    return artists
+
+
+def scatter_data_in_2d(
+    features: np.ndarray,
+    labels: np.ndarray = None,
+    dim_reduction_method="pca",
+    show_3d_as_size=True,
+):
     if features.ndim == 1 or features.shape[1] == 1:
-        feat = np.asarray([np.arange(features.shape[0]), np.asarray(features).flatten()]).T
+        feat = np.asarray(
+            [np.arange(features.shape[0]), np.asarray(features).flatten()]
+        ).T
 
     elif features.shape[1] > 2:
-        if dim_reduction_method == 'pca':
+        if dim_reduction_method == "pca":
             feat = PCA(3).fit_transform(features)
         else:
             feat = TSNE(3).fit_transform(features)
@@ -39,13 +84,13 @@ def scatter_data_in_2d(features: np.ndarray, labels: np.ndarray = None, dim_redu
 
 
 def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
-        x: np.ndarray,
-        cluster_labels: np.ndarray,
-        gt_y=None,
-        labels_names=None,
-        title=None,
-        dim_reduction_method="pca",
-        shown_amount=30,
+    x: np.ndarray,
+    cluster_labels: np.ndarray,
+    gt_y=None,
+    labels_names=None,
+    title=None,
+    dim_reduction_method="pca",
+    shown_amount=30,
 ):  # x_embedded, y_true):
     """using pca to show 3 dims  scatter in 3d
     x.shape = [samples_num,features_num]
@@ -68,7 +113,7 @@ def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
         np.random.uniform(low=0, high=len(cluster_labels), size=(shown_amount,))
     ).astype(int)
     if isinstance(gt_y, (list, np.ndarray)) and not all(
-            isinstance(float(e).is_integer(), (int, float)) for e in gt_y
+        isinstance(float(e).is_integer(), (int, float)) for e in gt_y
     ):
         lb = sklearn.preprocessing.LabelBinarizer()
         lb.fit(gt_y)
@@ -84,8 +129,8 @@ def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
     if isinstance(cluster_labels, list):
         cluster_labels = np.array(cluster_labels)
     markers = ["o", ",", "x", "+", "v", "^", "<", ">", "s", "d", "."][
-              : len(labels_names)
-              ]
+        : len(labels_names)
+    ]
     colors = cm.rainbow(np.linspace(0, 1, len(labels_names)))
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
@@ -128,13 +173,13 @@ def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
 
 
 def scatter_clustering_with_gt_labels_in_2d(
-        x: np.ndarray,
-        cluster_labels: np.ndarray = None,
-        gt_y=None,
-        labels_names=None,
-        title: str = None,
-        dim_reduction_method="pca",
-        shown_amount="max",
+    x: np.ndarray,
+    cluster_labels: np.ndarray = None,
+    gt_y=None,
+    labels_names=None,
+    title: str = None,
+    dim_reduction_method="pca",
+    shown_amount="max",
 ):
     """
     using pca to show 2 dims  scatter in 2d
@@ -187,7 +232,7 @@ def scatter_clustering_with_gt_labels_in_2d(
     if cluster_labels is None:
         cluster_labels = range(x.shape[0])
     if isinstance(gt_y, (list, np.ndarray)) and not all(
-            isinstance(float(e).is_integer(), (int, float)) for e in gt_y
+        isinstance(float(e).is_integer(), (int, float)) for e in gt_y
     ):
         # todo use vector2integer encoding func here
         lb = sklearn.preprocessing.LabelBinarizer()
@@ -240,6 +285,8 @@ def scatter_clustering_with_gt_labels_in_2d(
     plt.axis("off")
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+
 # def scatter_data_in_3d(features: np.ndarray, labels: np.ndarray, dim_reduction_method='pca'):
 #     if features.shape[1] > 3:
 #         if dim_reduction_method == 'pca':
