@@ -1,9 +1,3 @@
-import os
-import platform
-import stat
-from pathlib import Path
-from typing import Union
-
 import copy
 import datetime as dt
 import hashlib
@@ -25,13 +19,11 @@ from typing import Iterable, Dict
 from typing import List
 from typing import Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.io
 from PIL import Image
 from natsort import natsorted
-
 
 
 def update_renaming_doc(input_dir: str, sink_dir: str, df_renaming_doc: pd.DataFrame):
@@ -100,6 +92,22 @@ def update_renaming_doc(input_dir: str, sink_dir: str, df_renaming_doc: pd.DataF
     return df_renaming_doc
 
 
+def get_latest_file(regex_path: str) -> str:
+    """
+    Returns:
+        the latest file in the current directory using regex_path as regex
+    Examples
+    regex_path = "path/to/folder/*.jpg"
+    latest_jpg_file_in_dir = get_latest_file(regex_path)
+    """
+    return str(
+        max(
+            list(Path(regex_path).parent.glob(Path(regex_path).name)),
+            key=os.path.getctime,
+        )
+    )
+
+
 def download_youtube_video(url: str, file_path):
     import pytube
 
@@ -114,7 +122,6 @@ def download_youtube_video(url: str, file_path):
 def download_files_and_write_to_individual_folders(
     links_list: List, sink_dir: str = ".", write_to_individual_folders=True
 ):
-
     """the function will get a list of links (for example links to videos on a public s3 bucket)
     download and save each of them inside individual folder on "sink_dir" directory"""
     import wget
@@ -322,6 +329,8 @@ def read_matlab_mat_file(file_path):
 
 
 def transform_mat_files_to_jpg(folder_path: str):
+    import matplotlib.pyplot as plt
+
     mat_files = glob(folder_path + "/*.mat")
     for i in mat_files:
         im_arr = read_matlab_mat_file(i)["v"]
@@ -332,8 +341,6 @@ def delete_all_files_in_folder_and_subfolders(path):
     for root, dirs, files in os.walk(path, topdown=True):
         for file in files:
             os.remove(os.path.join(root, file))
-
-
 
 
 def query_yes_no(question: str, default: str = "no") -> bool:
@@ -876,8 +883,6 @@ def is_url(s: str) -> bool:
     return re.match(regex, s) is not None
 
 
-
-
 def lower_case_all_media_files_in_dir(dir_path: str):
     """
     get  all media files in a directory recuse and remain all of them to the same name but in lower case,
@@ -954,13 +959,11 @@ def get_duplicate_media_files_dict(dir_path_1: str, dir_path_2: str = None) -> D
     pass
 
 
-
-
 def append2file_name(path: Union[str, Path], append: Union[str, Path]) -> str:
     append = str(append)
     path = str(path)
-    if not append.startswith('_'):
-        append = '_' + append
+    if not append.startswith("_"):
+        append = "_" + append
     res = Path(path).with_name(Path(path).stem + str(append) + Path(path).suffix)
     return str(res)
 
