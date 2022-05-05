@@ -142,12 +142,15 @@ def extract_video_snippet(
     snippet_len=None,
 ):
     from moviepy.video.io.VideoFileClip import VideoFileClip
+    details_dict = get_video_details(input_video_path)
 
-    if snippet_len is None and end_time is None:
-        raise ValueError("either end_time or snippet_len must be provided")
+    if snippet_len is None and end_time is None and start_time is None:
+
+        raise ValueError("either (end_time or start_time) or snippet_len must be provided")
+    elif  snippet_len is None and end_time is None and start_time is not None:
+        end_time = details_dict["duration"]
     if snippet_len is not None and end_time is None:
         end_time = start_time + snippet_len
-    details_dict = get_video_details(input_video_path)
     start_time = 0 if start_time is None else start_time
     end_time = details_dict["duration"] - 1 if end_time is None else end_time
     """cut a video snippet from a video"""
@@ -358,22 +361,8 @@ def generate_emotional_analysis_frames(
         return figs_arr
 
 
-def subsample_and_write(filename, out_filename, n_steps):
-    import skvideo.io
-
-    """only works for short videos"""
-    video_mat = skvideo.io.vread(filename)  # returns a NumPy array
-    video_mat = video_mat[::n_steps]  # subsample
-    skvideo.io.vwrite(out_filename, video_mat)
 
 
-def split_video_and_write(filename, out_filename, start, end):
-    import skvideo.io
-
-    """only works for short videos"""
-    video_mat = skvideo.io.vread(filename)  # returns a NumPy array
-    video_mat = video_mat[..., start:end]  # subsample
-    skvideo.io.vwrite(out_filename, video_mat)
 
 
 def get_every_x_frame_down_sampling(original_fps: int, target_fps: int) -> int:
