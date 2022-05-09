@@ -95,6 +95,43 @@ def break_video2frames(
             continue
         frame_write_success = cv2.imwrite(frame_path, image)  # save frame as JPG file
 
+def get_video_as_array(
+    curr_video_path: str,
+    output_frames_folder_path: str,
+    extraction_fps: int,
+    num_of_frame_to_extract: str,
+):
+    p = Path(curr_video_path)
+    arr= None
+    curr_video_name = p.name
+    vidcap = cv2.VideoCapture(curr_video_path)
+    original_fps = vidcap.get(cv2.CAP_PROP_FPS)
+    frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    duration = frame_count / original_fps
+
+    if extraction_fps is None:
+        extraction_fps = original_fps
+    if num_of_frame_to_extract is None:
+        num_of_frame_to_extract = int(duration * extraction_fps)
+    else:
+        num_of_frame_to_extract = int(num_of_frame_to_extract)
+    frame_write_success = True
+    for count, sec in enumerate(
+        np.linspace(0, duration - 0.1, num_of_frame_to_extract)
+    ):  # we cant extract frame fto the last second of the video (out of range)
+        mili_sec = int(sec * 1000)
+        frame_path = f"{output_frames_folder_path}/{Path(curr_video_name).with_suffix('')}_idx_{count}.jpg"
+        if os.path.exists(frame_path):
+            logging.getLogger(__name__).warning(f"{frame_path} already exists")
+            continue
+        vidcap.set(cv2.CAP_PROP_POS_MSEC, mili_sec)
+        frame_read_success, image = vidcap.read()
+        if (frame_read_success is False) or (frame_write_success is False):
+            continue
+        if arr is None:
+            arr = image[::,None]
+            np.append(arr,image,4)
+        return arr
 
 def extract_videos_folder_snippets(
     input_video_folder_path, output_folder_path, cut_times_file, cut_video_len=2
