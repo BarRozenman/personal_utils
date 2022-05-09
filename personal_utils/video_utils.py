@@ -95,15 +95,19 @@ def break_video2frames(
             continue
         frame_write_success = cv2.imwrite(frame_path, image)  # save frame as JPG file
 
-def get_video_as_array(
+
+def video2array(
     curr_video_path: str,
-    output_frames_folder_path: str,
-    extraction_fps: int,
-    num_of_frame_to_extract: str,
-):
+    extraction_fps: int = None,
+) -> np.ndarray:
+    """
+    extract frames from video and return numpy array
+    :param curr_video_path:
+    :param extraction_fps:
+    :return:
+    """
     p = Path(curr_video_path)
-    arr= None
-    curr_video_name = p.name
+    arr = None
     vidcap = cv2.VideoCapture(curr_video_path)
     original_fps = vidcap.get(cv2.CAP_PROP_FPS)
     frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -111,27 +115,21 @@ def get_video_as_array(
 
     if extraction_fps is None:
         extraction_fps = original_fps
-    if num_of_frame_to_extract is None:
-        num_of_frame_to_extract = int(duration * extraction_fps)
-    else:
-        num_of_frame_to_extract = int(num_of_frame_to_extract)
     frame_write_success = True
     for count, sec in enumerate(
-        np.linspace(0, duration - 0.1, num_of_frame_to_extract)
-    ):  # we cant extract frame fto the last second of the video (out of range)
+        np.linspace(0, duration - 0.1, int(duration * extraction_fps))
+    ):  # we can't extract frame fto the last second of the video (out of range)
         mili_sec = int(sec * 1000)
-        frame_path = f"{output_frames_folder_path}/{Path(curr_video_name).with_suffix('')}_idx_{count}.jpg"
-        if os.path.exists(frame_path):
-            logging.getLogger(__name__).warning(f"{frame_path} already exists")
-            continue
         vidcap.set(cv2.CAP_PROP_POS_MSEC, mili_sec)
         frame_read_success, image = vidcap.read()
         if (frame_read_success is False) or (frame_write_success is False):
             continue
         if arr is None:
-            arr = image[::,None]
-            np.append(arr,image,4)
-        return arr
+            arr = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)[..., None]
+        else:
+            arr = np.append(arr, cv2.cvtColor(image, cv2.COLOR_BGR2RGB)[..., None], 3)
+    return arr
+
 
 def extract_videos_folder_snippets(
     input_video_folder_path, output_folder_path, cut_times_file, cut_video_len=2
@@ -179,12 +177,15 @@ def extract_video_snippet(
     snippet_len=None,
 ):
     from moviepy.video.io.VideoFileClip import VideoFileClip
+
     details_dict = get_video_details(input_video_path)
 
     if snippet_len is None and end_time is None and start_time is None:
 
-        raise ValueError("either (end_time or start_time) or snippet_len must be provided")
-    elif  snippet_len is None and end_time is None and start_time is not None:
+        raise ValueError(
+            "either (end_time or start_time) or snippet_len must be provided"
+        )
+    elif snippet_len is None and end_time is None and start_time is not None:
         end_time = details_dict["duration"]
     if snippet_len is not None and end_time is None:
         end_time = start_time + snippet_len
@@ -398,10 +399,6 @@ def generate_emotional_analysis_frames(
         return figs_arr
 
 
-
-
-
-
 def get_every_x_frame_down_sampling(original_fps: int, target_fps: int) -> int:
     """use when you want to downsample the video to a lower fps
     Examples
@@ -470,7 +467,3 @@ def combine_output_files(
         for f in input_videos_paths:
             os.remove(f)
     os.remove("list_of_output_files.txt")
-
-
-if __name__ == "__main__":
-    pass
