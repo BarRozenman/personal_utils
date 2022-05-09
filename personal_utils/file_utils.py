@@ -15,13 +15,12 @@ from glob import glob
 from os.path import basename
 from pathlib import Path
 from shutil import copyfile
-from typing import Iterable, Dict
-from typing import List
-from typing import Union
+from typing import Iterable, Dict, Union, List
 
 import numpy as np
 import pandas as pd
 import scipy.io
+import wget
 from PIL import Image
 from natsort import natsorted
 
@@ -124,7 +123,6 @@ def download_files_and_write_to_individual_folders(
 ):
     """the function will get a list of links (for example links to videos on a public s3 bucket)
     download and save each of them inside individual folder on "sink_dir" directory"""
-    import wget
 
     logger = logging.getLogger(__name__)
     if not os.path.exists(sink_dir):

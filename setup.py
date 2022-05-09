@@ -9,7 +9,7 @@ from os import path
 HERE = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
+with open(path.join(HERE, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 # This call to setup() does all the work
@@ -32,9 +32,26 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Operating System :: OS Independent"
+        "Operating System :: OS Independent",
     ],
     packages=["personal_utils"],
     include_package_data=False,
-    install_requires=["numpy"]
+    install_requires=[
+        "numpy",
+        "filetype",
+        "hnswlib",
+        "matplotlib",
+        "moviepy",
+        "natsort",
+        "numpy",
+        "pandas",
+        "Pillow",
+        "pytube",
+        "scikit_learn",
+        "scipy",
+        "seaborn",
+        "Send2Trash",
+        "setuptools",
+        "wget",
+    ],
 )

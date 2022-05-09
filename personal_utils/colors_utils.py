@@ -3,8 +3,6 @@ from typing import Dict, Tuple
 import cv2
 import numpy as np
 import seaborn as sns
-import torch
-from sklearn.cluster import KMeans
 
 
 def closest_color(list_of_colors, color):
