@@ -44,7 +44,7 @@ def scatter_image(
 def scatter_multiple_images(
     x: np.ndarray,
     y: np.ndarray,
-    images: List[str, Path, np.ndarray],
+    images: List[Union[str, Path, np.ndarray]],
     ax=None,
     zoom: float = 0.5,
 ):

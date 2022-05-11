@@ -96,6 +96,41 @@ def break_video2frames(
         frame_write_success = cv2.imwrite(frame_path, image)  # save frame as JPG file
 
 
+def video2array(
+    curr_video_path: str,
+    extraction_fps: int = None,
+) -> np.ndarray:
+    """
+    extract frames from video and return numpy array
+    :param curr_video_path:
+    :param extraction_fps:
+    :return:
+    """
+    p = Path(curr_video_path)
+    arr = None
+    vidcap = cv2.VideoCapture(curr_video_path)
+    original_fps = vidcap.get(cv2.CAP_PROP_FPS)
+    frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    duration = frame_count / original_fps
+
+    if extraction_fps is None:
+        extraction_fps = original_fps
+    frame_write_success = True
+    for count, sec in enumerate(
+        np.linspace(0, duration - 0.1, int(duration * extraction_fps))
+    ):  # we can't extract frame fto the last second of the video (out of range)
+        mili_sec = int(sec * 1000)
+        vidcap.set(cv2.CAP_PROP_POS_MSEC, mili_sec)
+        frame_read_success, image = vidcap.read()
+        if (frame_read_success is False) or (frame_write_success is False):
+            continue
+        if arr is None:
+            arr = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)[..., None]
+        else:
+            arr = np.append(arr, cv2.cvtColor(image, cv2.COLOR_BGR2RGB)[..., None], 3)
+    return arr
+
+
 def extract_videos_folder_snippets(
     input_video_folder_path, output_folder_path, cut_times_file, cut_video_len=2
 ):
@@ -143,11 +178,17 @@ def extract_video_snippet(
 ):
     from moviepy.video.io.VideoFileClip import VideoFileClip
 
-    if snippet_len is None and end_time is None:
-        raise ValueError("either end_time or snippet_len must be provided")
+    details_dict = get_video_details(input_video_path)
+
+    if snippet_len is None and end_time is None and start_time is None:
+
+        raise ValueError(
+            "either (end_time or start_time) or snippet_len must be provided"
+        )
+    elif snippet_len is None and end_time is None and start_time is not None:
+        end_time = details_dict["duration"]
     if snippet_len is not None and end_time is None:
         end_time = start_time + snippet_len
-    details_dict = get_video_details(input_video_path)
     start_time = 0 if start_time is None else start_time
     end_time = details_dict["duration"] - 1 if end_time is None else end_time
     """cut a video snippet from a video"""
@@ -358,24 +399,6 @@ def generate_emotional_analysis_frames(
         return figs_arr
 
 
-def subsample_and_write(filename, out_filename, n_steps):
-    import skvideo.io
-
-    """only works for short videos"""
-    video_mat = skvideo.io.vread(filename)  # returns a NumPy array
-    video_mat = video_mat[::n_steps]  # subsample
-    skvideo.io.vwrite(out_filename, video_mat)
-
-
-def split_video_and_write(filename, out_filename, start, end):
-    import skvideo.io
-
-    """only works for short videos"""
-    video_mat = skvideo.io.vread(filename)  # returns a NumPy array
-    video_mat = video_mat[..., start:end]  # subsample
-    skvideo.io.vwrite(out_filename, video_mat)
-
-
 def get_every_x_frame_down_sampling(original_fps: int, target_fps: int) -> int:
     """use when you want to downsample the video to a lower fps
     Examples
@@ -444,7 +467,3 @@ def combine_output_files(
         for f in input_videos_paths:
             os.remove(f)
     os.remove("list_of_output_files.txt")
-
-
-if __name__ == "__main__":
-    pass

@@ -13,7 +13,6 @@ from typing import List, Tuple, Union
 import PIL
 import cv2
 import matplotlib.cm as cm
-import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.misc
 from PIL import Image
@@ -188,6 +187,8 @@ def fourier_phase(image: np.ndarray = None) -> np.ndarray:
 
     plot_command = flags.debug
     if plot_command:
+        import matplotlib.pyplot as plt
+
         plt.figure()
         plt.imshow(full_channels_phase_img_array[:, :, 0])
         plt.show()
@@ -282,6 +283,8 @@ def resize_and_pad_all_imgs_in_folder_tree(
         original_path.append(str(img_path))
         new_path_list.append(str(new_path))
         if flags.debug:
+            import matplotlib.pyplot as plt
+
             plt.imshow(img)
             plt.show()
             print("plot image")
@@ -482,7 +485,7 @@ def resize_image(
     return resized_img
 
 
-def fig2array(fig: plt.Figure, return_RGB=False) -> np.ndarray:
+def fig2array(fig: 'plt.Figure', return_RGB=False) -> np.ndarray:
     """
     by default returns a BGR channels to conform cv2 format
     fig = plt.figure()
