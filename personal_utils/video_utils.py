@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess as sp
 from pathlib import Path
+from tkinter import N
 from typing import Dict
 from typing import List, Tuple, Union
 
@@ -14,6 +15,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt, gridspec, cm
 from send2trash import send2trash
+from tqdm import tqdm
 
 from . import file_utils
 from .file_utils import append2file_name
@@ -64,8 +66,8 @@ def extract_frames_from_videos_folder(
 def break_video2frames(
     curr_video_path: str,
     output_frames_folder_path: str,
-    extraction_fps: int,
-    num_of_frame_to_extract: str,
+    extraction_fps: int=None,
+    num_of_frame_to_extract: str=None,
 ):
     p = Path(curr_video_path)
     curr_video_name = p.name
@@ -81,9 +83,9 @@ def break_video2frames(
     else:
         num_of_frame_to_extract = int(num_of_frame_to_extract)
     frame_write_success = True
-    for count, sec in enumerate(
+    for count, sec in tqdm(enumerate(
         np.linspace(0, duration - 0.1, num_of_frame_to_extract)
-    ):  # we cant extract frame fto the last second of the video (out of range)
+    )):  # we cant extract frame fto the last second of the video (out of range)
         mili_sec = int(sec * 1000)
         frame_path = f"{output_frames_folder_path}/{Path(curr_video_name).with_suffix('')}_idx_{count}.jpg"
         if os.path.exists(frame_path):
