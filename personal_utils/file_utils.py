@@ -558,8 +558,8 @@ def write_files_to_folders_by_label(
 def generate_hash_from_file(file_path):
     """generates a hash form the binary content of any file, can be helpful when comparing large amounts for files"""
     binary_file = open(file_path, "rb").read()
-    hash = hashlib.md5(binary_file).hexdigest()
-    return hash
+    hash_ = hashlib.md5(binary_file).hexdigest()
+    return hash_
 
 
 def format_stimuli_files_names(
@@ -960,9 +960,17 @@ def get_duplicate_media_files_dict(dir_path_1: str, dir_path_2: str = None) -> D
 def append2file_name(path: Union[str, Path], append: Union[str, Path]) -> str:
     append = str(append)
     path = str(path)
-    if not append.startswith("_"):
-        append = "_" + append
+    append = append + "_" if not append.startswith("_") else append
     res = Path(path).with_name(Path(path).stem + str(append) + Path(path).suffix)
+    return str(res)
+
+
+def prepend2file_name(path: Union[str, Path], prepend: Union[str, Path]) -> str:
+    prepend = str(prepend)
+    path = str(path)
+    prepend = prepend + "_" if not prepend.endswith("_") else prepend
+    res = Path(path).with_name(
+        str(prepend)+str(Path(path).stem)+str(Path(path).suffix))
     return str(res)
 
 

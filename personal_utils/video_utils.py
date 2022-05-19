@@ -67,13 +67,14 @@ def break_video2frames(
     curr_video_path: str,
     output_frames_folder_path: str,
     extraction_fps: int=None,
-    num_of_frame_to_extract: str=None,
+    num_of_frame_to_extract: str=None,overwrite=False,
 ):
     p = Path(curr_video_path)
+    video_details= get_video_details(curr_video_path)
+    frame_count = video_details['frame_count']
     curr_video_name = p.name
     vidcap = cv2.VideoCapture(curr_video_path)
     original_fps = vidcap.get(cv2.CAP_PROP_FPS)
-    frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = frame_count / original_fps
 
     if extraction_fps is None:
@@ -85,10 +86,10 @@ def break_video2frames(
     frame_write_success = True
     for count, sec in tqdm(enumerate(
         np.linspace(0, duration - 0.1, num_of_frame_to_extract)
-    )):  # we cant extract frame fto the last second of the video (out of range)
+    ),total=frame_count):  # we cant extract frame fto the last second of the video (out of range)
         mili_sec = int(sec * 1000)
         frame_path = f"{output_frames_folder_path}/{Path(curr_video_name).with_suffix('')}_idx_{count}.jpg"
-        if os.path.exists(frame_path):
+        if os.path.exists(frame_path) and overwrite is False:
             logging.getLogger(__name__).warning(f"{frame_path} already exists")
             continue
         vidcap.set(cv2.CAP_PROP_POS_MSEC, mili_sec)
