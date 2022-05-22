@@ -13,6 +13,7 @@ class Flags(object):
     class that holds global variables that can be access int any place in the run
     eval_subset_size: [bool,int], take a subset of the total dataset to run, use int to choose the subset size
     """
+
     debug: bool = False
     verbose: bool = False
     timestamp: str = None
@@ -34,8 +35,10 @@ class Flags(object):
         return self.__dict__
 
     @staticmethod
-    def use_cache_file(file_path: str) -> bool:
-        """if use_cache_file is True and file exists return True """
+    def use_cache_file(file_path: str, verbose=False) -> bool:
+        """if use_cache_file is True and file exists return True"""
+        print(f"using cache file - '{file_path}'") if verbose else None
+
         if Path(file_path).exists() and flags.use_cache:
             return True
         else:
