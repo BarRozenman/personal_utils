@@ -37,9 +37,8 @@ class Flags(object):
     @staticmethod
     def use_cache_file(file_path: str, verbose=False) -> bool:
         """if use_cache_file is True and file exists return True"""
-        print(f"using cache file - '{file_path}'") if verbose else None
-
         if Path(file_path).exists() and flags.use_cache:
+            print(f"using cache file - '{file_path}'") if verbose else None
             return True
         else:
             return False
