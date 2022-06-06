@@ -25,6 +25,13 @@ from .flags import flags
 
 from . import file_utils
 
+def new_coordinates_after_resize_img(original_size:Tuple, new_size:Tuple, original_coordinate:Tuple) -> Tuple:
+  original_size = np.array(original_size)
+  new_size = np.array(new_size)
+  original_coordinate = np.array(original_coordinate)
+  xy = original_coordinate/(original_size/new_size)
+  x, y = int(xy[0]), int(xy[1])
+  return x, y
 
 def image_tracking(im: np.ndarray = None, img_path: str = None) -> np.ndarray:
     """@cvar
