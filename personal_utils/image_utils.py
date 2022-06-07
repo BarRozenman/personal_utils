@@ -519,22 +519,22 @@ def fig2array(fig: "plt.Figure", return_RGB=False) -> np.ndarray:
     return arr
 
 
-def bbox_center_of_mass(box: np.ndarray,format='lurl') -> Tuple[float, float]:
+def bbox_center_of_mass(box: np.ndarray, format="lurl") -> Tuple[float, float]:
     """
       Crops an object in an image using [left,upper,right,lower] (lurl) bounding box or [top,left,bottom,right] (tlbr)
 
     Inputs:
       box: one box from Detectron2 pred_boxes
     """
-    if format=='tlbr':
+    if format == "tlbr":
         top = box[0]
         left = box[1]
         bottom = box[2]
         right = box[3]
-        x_center = (right+left ) / 2
-        y_center = (bottom+top) / 2
+        x_center = (right + left) / 2
+        y_center = (bottom + top) / 2
 
-    elif format=='lurl':
+    elif format == "lurl":
 
         x_top_left = box[0]
         y_top_left = box[1]
@@ -543,21 +543,9 @@ def bbox_center_of_mass(box: np.ndarray,format='lurl') -> Tuple[float, float]:
         x_center = (x_top_left + x_bottom_right) / 2
         y_center = (y_top_left + y_bottom_right) / 2
     else:
-        print('non valid bbox format')
+        print("non valid bbox format")
         return None, None
     return x_center, y_center
-
-
-
-if __name__ == "__main__":
-    pass
-    resize_and_pad_all_imgs_in_folder_tree(
-        "/home/barroz/BrainVivo_data/datasets/friends_seinfeld_original_images_mri_struct",
-        "/home/barroz/BrainVivo_data/datasets/friends_seinfeld_presented_images_mri_struct",
-        pad_img=True,
-    )
-    # image_tracking(img_path=r"C:\Git\dev\datasets\AM_test2\original_images\e.jpg")
-    # rename_imgs_by_to_ratio_proximity(input_dir=r"C:\Users\Bar Rozenman\Desktop\DANA",output_dir=r"C:\Users\Bar Rozenman\Desktop\D1")
 
 
 def crop_object(
@@ -585,3 +573,14 @@ def crop_object(
     if isinstance(image, np.ndarray):
         crop_img = np.asarray(crop_img)
     return crop_img
+
+
+if __name__ == "__main__":
+    pass
+    resize_and_pad_all_imgs_in_folder_tree(
+        "/home/barroz/BrainVivo_data/datasets/friends_seinfeld_original_images_mri_struct",
+        "/home/barroz/BrainVivo_data/datasets/friends_seinfeld_presented_images_mri_struct",
+        pad_img=True,
+    )
+    # image_tracking(img_path=r"C:\Git\dev\datasets\AM_test2\original_images\e.jpg")
+    # rename_imgs_by_to_ratio_proximity(input_dir=r"C:\Users\Bar Rozenman\Desktop\DANA",output_dir=r"C:\Users\Bar Rozenman\Desktop\D1")
