@@ -22,16 +22,19 @@ from .exceptions import ImageResizingException
 from .file_utils import get_all_images_paths_in_dir, update_renaming_doc
 from .flags import flags
 
-
 from . import file_utils
 
-def new_coordinates_after_resize_img(original_size:Tuple, new_size:Tuple, original_coordinate:Tuple) -> Tuple:
-  original_size = np.array(original_size)
-  new_size = np.array(new_size)
-  original_coordinate = np.array(original_coordinate)
-  xy = original_coordinate/(original_size/new_size)
-  x, y = int(xy[0]), int(xy[1])
-  return x, y
+
+def new_coordinates_after_resize_img(
+    original_size: Tuple, new_size: Tuple, original_coordinate: Tuple
+) -> Tuple:
+    original_size = np.array(original_size)
+    new_size = np.array(new_size)
+    original_coordinate = np.array(original_coordinate)
+    xy = original_coordinate / (original_size / new_size)
+    x, y = int(xy[0]), int(xy[1])
+    return x, y
+
 
 def image_tracking(im: np.ndarray = None, img_path: str = None) -> np.ndarray:
     """@cvar
@@ -492,7 +495,7 @@ def resize_image(
     return resized_img
 
 
-def fig2array(fig: 'plt.Figure', return_RGB=False) -> np.ndarray:
+def fig2array(fig: "plt.Figure", return_RGB=False) -> np.ndarray:
     """
     by default returns a BGR channels to conform cv2 format
     fig = plt.figure()
@@ -514,6 +517,36 @@ def fig2array(fig: 'plt.Figure', return_RGB=False) -> np.ndarray:
     if not return_RGB:
         arr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)  # returning BGR
     return arr
+
+
+def bbox_center_of_mass(box: np.ndarray,format='lurl') -> Tuple[float, float]:
+    """
+      Crops an object in an image using [left,upper,right,lower] (lurl) bounding box or [top,left,bottom,right] (tlbr)
+
+    Inputs:
+      box: one box from Detectron2 pred_boxes
+    """
+    if format=='tlbr':
+        top = box[0]
+        left = box[1]
+        bottom = box[2]
+        right = box[3]
+        x_center = (right+left ) / 2
+        y_center = (bottom+top) / 2
+
+    elif format=='lurl':
+
+        x_top_left = box[0]
+        y_top_left = box[1]
+        x_bottom_right = box[2]
+        y_bottom_right = box[3]
+        x_center = (x_top_left + x_bottom_right) / 2
+        y_center = (y_top_left + y_bottom_right) / 2
+    else:
+        print('non valid bbox format')
+        return None, None
+    return x_center, y_center
+
 
 
 if __name__ == "__main__":
