@@ -960,7 +960,7 @@ def get_duplicate_media_files_dict(dir_path_1: str, dir_path_2: str = None) -> D
 def append2file_name(path: Union[str, Path], append: Union[str, Path]) -> str:
     append = str(append)
     path = str(path)
-    append = append + "_" if not append.startswith("_") else append
+    append = "_" + append  if not append.startswith("_") else append
     res = Path(path).with_name(Path(path).stem + str(append) + Path(path).suffix)
     return str(res)
 
