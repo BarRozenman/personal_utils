@@ -250,7 +250,7 @@ def generate_video_from_frames_array(frames_array: np.ndarray, video_path: str, 
     for i in range(frames_array.shape[3]):
         out.write(frames_array[:, :, :, i])
     out.release()
-    print("Created video:", f"file:///{os.getcwd()}/{video_path}")
+    print("Created video:", f"file://{Path(video_path).absolute()}")
 
 
 def generate_video_from_frames_paths(
@@ -287,7 +287,7 @@ def generate_video_from_frames_paths(
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
-    print("Created video:", f"file:///{os.getcwd()}/{video_path}")
+    print("Created video:", f"file://{Path(video_path).absolute()}")
 
 
 @timeit_decorator
