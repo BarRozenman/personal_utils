@@ -51,6 +51,8 @@ def scatter_multiple_images(
     """show the image at the gi ven coordinates"""
     artists = []
     for curr_x, curr_y, im in zip(x, y, images):
+        if im is None:
+            continue
         art = scatter_image(curr_x, curr_y, im, ax=ax, zoom=zoom)
         artists.append(art)
     return artists

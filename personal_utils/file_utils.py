@@ -392,13 +392,17 @@ def transform_all_images_to_jpg_in_dir(dir_path: str):
 def duplicate_directory_tree(input_path, output_path, exist_ok=False):
     """duplicating directory structure (folders only, without files) to a new give path, if the given output path exists and
     contains any files nothing will happen until a dir without files is given"""
-    if [
-        Path(dir).relative_to(input_path)
-        for dir in (glob(f"{input_path}/**/", recursive=True))
-    ] == [
-        Path(dir).relative_to(output_path)
-        for dir in (glob(f"{output_path}/**/", recursive=True))
-    ] and exist_ok:
+    if (
+        [
+            Path(dir).relative_to(input_path)
+            for dir in (glob(f"{input_path}/**/", recursive=True))
+        ]
+        == [
+            Path(dir).relative_to(output_path)
+            for dir in (glob(f"{output_path}/**/", recursive=True))
+        ]
+        and exist_ok
+    ):
         logging.getLogger(__name__).info(
             f"directory tree already exists and match the input dir tree and exist_ok is True, skipping {duplicate_directory_tree.__name__} "
         )
@@ -444,6 +448,20 @@ def duplicate_directory_tree(input_path, output_path, exist_ok=False):
     )
 
     return True
+
+
+def check_if_cache_file_exists(cache_file_path):
+    """check if cache file exists by removing the time stamp from file name """
+    pass
+    # match = re.search(Flags.timestamp_regex, file_path)
+    # re.search(Flags.timestamp_regex, file_path)[0]
+    # re.findall(Flags.timestamp_regex, file_path)[0]
+    # base_name = ''.join(file_path.split(re.findall(Flags.timestamp_regex, file_path)[0]))
+    # base_name = file_path.split(re.findall(Flags.timestamp_regex, file_path)[0])
+    # s,e=re.search(Flags.timestamp_regex, file_path).regs[0]
+    # glob(base_name[0]+'*'+base_name[1])
+    # if re.match(Flags.timestamp_regex,file_path) is not None:
+    #     file_path.remove(match)
 
 
 def delete_empty_folders_in_dir_tree(
@@ -960,7 +978,7 @@ def get_duplicate_media_files_dict(dir_path_1: str, dir_path_2: str = None) -> D
 def append2file_name(path: Union[str, Path], append: Union[str, Path]) -> str:
     append = str(append)
     path = str(path)
-    append = "_" + append  if not append.startswith("_") else append
+    append = "_" + append if not append.startswith("_") else append
     res = Path(path).with_name(Path(path).stem + str(append) + Path(path).suffix)
     return str(res)
 
@@ -970,7 +988,8 @@ def prepend2file_name(path: Union[str, Path], prepend: Union[str, Path]) -> str:
     path = str(path)
     prepend = prepend + "_" if not prepend.endswith("_") else prepend
     res = Path(path).with_name(
-        str(prepend)+str(Path(path).stem)+str(Path(path).suffix))
+        str(prepend) + str(Path(path).stem) + str(Path(path).suffix)
+    )
     return str(res)
 
 

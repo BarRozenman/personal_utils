@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-
-# from brv_constants.flags import flags
-
-# TODO change this
 from pathlib import Path
+
 
 
 @dataclass
@@ -26,6 +23,8 @@ class Flags(object):
     mlflow_run_id: str = None
     random_seed: int = None
     clear_cache: bool = False
+    timestamp_regex: str = r"_\d{4}-\d{2}-\d{2}_\d{2}\d{2}"
+    seconds_timestamp_regex: str = r"_\d{4}-\d{2}-\d{2}_\d{2}\d{2}-\d{2}"
 
     def __post_init__(self):
         self.timestamp = self.get_timestamp_min_str()
