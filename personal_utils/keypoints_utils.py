@@ -1,3 +1,4 @@
+from .flags import flags
 import matplotlib.pyplot as plt
 from torchvision  import transforms
 import PIL
@@ -25,70 +26,20 @@ def get_head_from_keypoints(keypoints, image):
     width = np.abs(d["right_ear"]-d["left_ear"])[1]
     top, left, height, width = map(int,(top,left,height,width))
     im_size= image.shape
-
-    # cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0, 255), 2)
-    # faces = img[y:y + h, x:x + w]
-    # cv2.imshow("face",faces)
-    # cv2.imwrite('face.jpg', faces)
-    # head_image = transforms.functional.crop(Image.fromarray(image), im_size[0]-top,left,height,width)
-    # head_image2 = transforms.functional.crop(Image.fromarray(image), left,im_size[0]-top,height,width)
-    # cv2.circle(image, (top, left), 3, (0, 0, 255), -1)
-    # cv2.circle(image, (int(d["nose"][1]), int(d["nose"][0])), 3, (44, 5, 255), -1)
-    x = int(d["left_ear"][1]-20)
-    y=int(d["left_ear"][0]-20)
-
-    h=80
-    w=80
-    # cv2.circle(image, x, y, 3, (44, 5, 255), -1)
-    # image = cv2.imread(path)
-    # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)
-
-    # Center coordinates
-    center_coordinates = (120, 50)
-    # Radius of circle
-    radius = 20
-    # Blue color in BGR
-    color = (255, 0, 0)
-    # Line thickness of 2 px
-    thickness = 2
-    # Using cv2.circle() method
-    # Draw a circle with blue line borders of thickness of 2 px
-    # image1 = cv2.imread('/home/graphecy/projects/track_project/simple-object-tracking/pipeline_outputs/short_vid_riot_b/bbox_dir/person_num_3/frame_3.jpg')
-
-    # image1 = cv2.circle(image.astype(np.uint8), center_coordinates, radius, color, thickness)
-    # np.rot90(image,1,(0,1))
-    # Displaying the image
-    # plt.imshow(image)
-    # plt.show()
-    #
-    # plt.imshow(np.rot90(image, -1, (0, 1)))
-    # plt.show()
-    # # torchvision.transforms.functional.crop(img: Tensor, top: int, left: int, height: int, width: int) → Tensor
-    # plt.imshow(head_image2)
-    # plt.imshow(image)
-    # plt.show()
-    cropped_image =image[y:y + h, x:x + w]
-    # plt.imshow(cropped_image)
-    # plt.show()
-    # cv2.imshow("cropped", crop_img)
-    # cv2.waitKey(0)
-    # plt.imshow(cropped_image)
-    # plt.imshow(image[y:y + h, x:x + w])
-    # cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255), 2)
-    # plt.imshow(image)
-    # plt.plot(x, y, marker="o", markersize=20, markeredgecolor="red", markerfacecolor="green")
-    # plt.show()
-    # plt.imshow(image)
-    # plt.plot(d["nose"][1], d["nose"][0], marker="o", markersize=20, markeredgecolor="red", markerfacecolor="green")
-    # plt.show()
-    # plt.figure()
-    # plt.imshow(image)
-    # for i in keypoints:
-    #     plt.plot(i[1], i[0], marker="o", markersize=1, markeredgecolor="red", markerfacecolor="green")
-    # plt.show()
-    # cropped_image = np.rot90(cropped_image,3)
-    # plt.imshow(cropped_image)
-    # plt.show()
+    # plt.plot(d["left_eye"] [1]- d["left_eye"], marker="o", markersize=1, markeredgecolor="red", markerfacecolor="green")
+    # plt.plot(d["right_eye"][1], d["right_eye"][0], marker="o", markersize=1, markeredgecolor="red", markerfacecolor="green")
+    delta_y = int(np.linalg.norm(d["left_ear"]-d["right_ear"])*2)
+    delta_x = int(np.linalg.norm(d["left_ear"]-d["right_ear"])*2.7)
+    cropped_image = image[y - delta_y:y + delta_y, x - delta_x:x + delta_x]
+    if flags.verbose:
+        """plot keypoints to make sure the are in the proper location"""
+        plt.imshow(image)
+        for i in keypoints:
+            plt.plot(i[1], i[0], marker="o", markersize=1, markeredgecolor="red", markerfacecolor="green")
+        plt.show()
+        plt.figure()
+        plt.imshow(cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB))
+        plt.show()
     return cropped_image
 
 if __name__ == '__main__':
