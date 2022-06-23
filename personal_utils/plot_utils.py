@@ -47,11 +47,21 @@ def scatter_multiple_images(
     images: List[Union[str, Path, np.ndarray]],
     ax=None,
     zoom: float = 0.5,
+    shown_amount='max'
 ):
+    if shown_amount == "max":
+        shown_amount = len(images)
+        rand_indexes = range(shown_amount)
+    else:
+        rand_indexes = np.round(
+            np.random.uniform(low=0, high=len(images), size=(shown_amount,))
+        ).astype(int)
     """show the image at the gi ven coordinates"""
     artists = []
-    for curr_x, curr_y, im in zip(x, y, images):
+    for idx,(curr_x, curr_y, im) in enumerate(zip(x, y, images)):
         if im is None:
+            continue
+        if idx not in rand_indexes:
             continue
         art = scatter_image(curr_x, curr_y, im, ax=ax, zoom=zoom)
         artists.append(art)
