@@ -188,7 +188,7 @@ def scatter_clustering_with_gt_labels_in_2d(
     x: np.ndarray,
     cluster_labels: np.ndarray = None,
     gt_y=None,
-    labels_names=None,
+    gt_labels_names=None,
     title: str = None,
     dim_reduction_method="pca",
     shown_amount="max",
@@ -238,11 +238,10 @@ def scatter_clustering_with_gt_labels_in_2d(
             x = ml_utils.manifold_dim_reduction(x, 2)
         elif dim_reduction_method == "tsne":
             x = ml_utils.tsne_dim_reduction(x, 2)
-    if labels_names is None:
-        labels_names = range(len(np.unique(cluster_labels)))
 
     if cluster_labels is None:
         cluster_labels = range(x.shape[0])
+
     if isinstance(gt_y, (list, np.ndarray)) and not all(
         isinstance(float(e).is_integer(), (int, float)) for e in gt_y
     ):
@@ -250,7 +249,9 @@ def scatter_clustering_with_gt_labels_in_2d(
         lb = sklearn.preprocessing.LabelBinarizer()
         lb.fit(gt_y)
         gt_y = lb.transform(gt_y).flatten()
-        labels_names = lb.classes_.tolist()
+        gt_labels_names = lb.classes_.tolist()
+    if gt_labels_names is None:
+        gt_labels_names = range(len(np.unique(gt_y)))
 
     # x_min, x_max = np.min(x), np.max(x)
     x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
@@ -259,15 +260,17 @@ def scatter_clustering_with_gt_labels_in_2d(
     markers = itertools.cycle(["o", ",", "x", "+", "v", "^", "<", ">", "s", "d", "."])
 
     fig, ax = plt.subplots()
-    colors = cm.rainbow(np.linspace(0, 1, len(labels_names)))
-    labels_dict = dict(zip(np.unique(cluster_labels), labels_names))
+    colors = cm.jet(np.linspace(0, 1, len(np.unique(cluster_labels))))
+    np.random.shuffle(colors)
+    cluster_labels_dict = dict(zip(np.unique(cluster_labels), range(len(cluster_labels))))
+    gt_labels_dict = dict(zip(np.unique(gt_y), gt_labels_names))
     if gt_y is None:
         for t, color, marker in zip(set(cluster_labels), colors, markers):
             idx = cluster_labels == t
             ax.scatter(
                 x[idx, 0][:shown_amount],
                 x[idx, 1][:shown_amount],
-                label=labels_dict[t],
+                label=cluster_labels_dict[t],
                 s=120,
                 c=color.reshape(1, 4),
                 marker=marker,
@@ -275,6 +278,7 @@ def scatter_clustering_with_gt_labels_in_2d(
             )
         # plt.scatter(X_red[:, 0], X_red[:, 1])
     else:
+        aaa= []
         for i in range(X_red.shape[0]):
             if i not in rand_indexes:
                 continue
@@ -282,8 +286,8 @@ def scatter_clustering_with_gt_labels_in_2d(
                 ax.text(
                     X_red[i, 0],
                     X_red[i, 1],
-                    labels_names[gt_y[i]],
-                    color=plt.cm.nipy_spectral(cluster_labels[i] / 10.0),
+                    gt_labels_dict[gt_y[i]],
+                    color=colors[cluster_labels_dict[cluster_labels[i]]],
                     fontdict={"weight": "bold", "size": 9},
                 )
             except Exception as e:
