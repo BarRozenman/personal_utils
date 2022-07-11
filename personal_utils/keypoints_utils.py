@@ -51,6 +51,7 @@ def get_head_from_keypoints(keypoints, image):
     delta_y = int(np.linalg.norm(d["left_ear"] - d["right_ear"]) * 2)
     delta_x = int(np.linalg.norm(d["left_ear"] - d["right_ear"]) * 2.7)
     cropped_image = image[y - delta_y : y + delta_y, x - delta_x : x + delta_x]
+    cropped_image = np.flip(cropped_image, 0)
     if flags.verbose:
         """plot keypoints to make sure the are in the proper location"""
         plt.imshow(image)
