@@ -519,61 +519,6 @@ def fig2array(fig: "plt.Figure", return_RGB=False) -> np.ndarray:
     return arr
 
 
-def bbox_center_of_mass(box: np.ndarray, format="lurl") -> Tuple[float, float]:
-    """
-      Crops an object in an image using [left,upper,right,lower] (lurl) bounding box or [top,left,bottom,right] (tlbr)
-
-    Inputs:
-      box: one box from Detectron2 pred_boxes
-    """
-    if format == "tlbr":
-        top = box[0]
-        left = box[1]
-        bottom = box[2]
-        right = box[3]
-        x_center = (right + left) / 2
-        y_center = (bottom + top) / 2
-
-    elif format == "lurl":
-
-        x_top_left = box[0]
-        y_top_left = box[1]
-        x_bottom_right = box[2]
-        y_bottom_right = box[3]
-        x_center = (x_top_left + x_bottom_right) / 2
-        y_center = (y_top_left + y_bottom_right) / 2
-    else:
-        print("non valid bbox format")
-        return None, None
-    return x_center, y_center
-
-
-def crop_object(
-    image: Union[PIL.Image.Image, np.ndarray], box: np.ndarray
-) -> Union[PIL.Image.Image, np.ndarray]:
-    """
-      Crops an object in an image using [left,upper,right,lower] bounding box
-
-    Inputs:
-      image: PIL image
-      box: one box from Detectron2 pred_boxes
-    """
-    if isinstance(image, np.ndarray):
-        image = Image.fromarray(image)
-    x_top_left = box[0]
-    y_top_left = box[1]
-    x_bottom_right = box[2]
-    y_bottom_right = box[3]
-    x_center = (x_top_left + x_bottom_right) / 2
-    y_center = (y_top_left + y_bottom_right) / 2
-
-    crop_img = image.crop(
-        (int(x_top_left), int(y_top_left), int(x_bottom_right), int(y_bottom_right))
-    )
-    if isinstance(image, np.ndarray):
-        crop_img = np.asarray(crop_img)
-    return crop_img
-
 
 if __name__ == "__main__":
     pass
