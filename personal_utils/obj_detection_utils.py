@@ -15,6 +15,7 @@ def xywh2xyxy(x):
     boxes[:, 3] = x[:, 1] + x[:, 3] / 2
     return boxes
 
+
 def plot_one_number(centroid, img, color=None, label=None):
     # color = color or [np.random.randint(0, 255) for _ in range(3)]
     p1, p2 = centroid
@@ -77,6 +78,8 @@ def scale_boxes(boxes, orig_shape, new_shape):
     boxes_[:, ::2].clamp_(0, orig_shape[1])
     boxes_[:, 1::2].clamp_(0, orig_shape[0])
     return boxes_.round().numpy()
+
+
 def bbox_center_of_mass(box: np.ndarray, format="lurl") -> Tuple[float, float]:
     """
       Crops an object in an image using [left,upper,right,lower] (lurl) bounding box or [top,left,bottom,right] (tlbr)
@@ -129,7 +132,3 @@ def crop_object_bbox(
     if isinstance(image, np.ndarray):
         crop_img = np.asarray(crop_img)
     return crop_img
-
-
-
-

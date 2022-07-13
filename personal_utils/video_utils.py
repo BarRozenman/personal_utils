@@ -1,4 +1,5 @@
 import copy
+import glob
 import json
 import logging
 import os
@@ -22,6 +23,7 @@ from .file_utils import append2file_name
 from .flags import flags
 from .image_utils import fig2array
 from .time_utils import timeit_decorator
+from natsort import natsorted
 
 
 @timeit_decorator
@@ -66,12 +68,13 @@ def extract_frames_from_videos_folder(
 def break_video2frames(
     curr_video_path: str,
     output_frames_folder_path: str,
-    extraction_fps: int=None,
-    num_of_frame_to_extract: str=None,overwrite=False,
+    extraction_fps: int = None,
+    num_of_frame_to_extract: str = None,
+    overwrite=False,
 ):
     p = Path(curr_video_path)
-    video_details= get_video_details(curr_video_path)
-    frame_count = video_details['frame_count']
+    video_details = get_video_details(curr_video_path)
+    frame_count = video_details["frame_count"]
     curr_video_name = p.name
     vidcap = cv2.VideoCapture(curr_video_path)
     original_fps = vidcap.get(cv2.CAP_PROP_FPS)
@@ -84,9 +87,10 @@ def break_video2frames(
     else:
         num_of_frame_to_extract = int(num_of_frame_to_extract)
     frame_write_success = True
-    for count, sec in tqdm(enumerate(
-        np.linspace(0, duration - 0.1, num_of_frame_to_extract)
-    ),total=frame_count):  # we cant extract frame fto the last second of the video (out of range)
+    for count, sec in tqdm(
+        enumerate(np.linspace(0, duration - 0.1, num_of_frame_to_extract)),
+        total=frame_count,
+    ):  # we cant extract frame fto the last second of the video (out of range)
         mili_sec = int(sec * 1000)
         frame_path = f"{output_frames_folder_path}/{Path(curr_video_name).with_suffix('')}_idx_{count}.jpg"
         if os.path.exists(frame_path) and overwrite is False:
@@ -99,10 +103,7 @@ def break_video2frames(
         frame_write_success = cv2.imwrite(frame_path, image)  # save frame as JPG file
 
 
-def video2array(
-    curr_video_path: str,
-    extraction_fps: int = None,
-) -> np.ndarray:
+def video2array(curr_video_path: str, extraction_fps: int = None,) -> np.ndarray:
     """
     extract frames from video and return numpy array
     :param curr_video_path:
@@ -166,7 +167,6 @@ def extract_videos_folder_snippets(
             output_video_path = (
                 f"{output_folder_path}/{curr_video_name[:-4]}_{count1}_snippet.mp4"
             )
-
             with VideoFileClip(input_video_path) as video:
                 cut_vid = video.subclip(time, time + cut_video_len)
                 cut_vid.write_videofile(output_video_path, audio_codec="aac")
@@ -194,11 +194,12 @@ def extract_video_snippet(
         end_time = start_time + snippet_len
     start_time = 0 if start_time is None else start_time
     end_time = details_dict["duration"] - 1 if end_time is None else end_time
+    # snippet_len = end_time-start_time if snippet_len is None
     """cut a video snippet from a video"""
     if output_video_path is None:
         output_video_path = append2file_name(input_video_path, "snippet")
     with VideoFileClip(input_video_path) as video:
-        cut_vid = video.subclip(start_time, end_time)
+        cut_vid = video.subclip(start_time, t_end=end_time)
         cut_vid.write_videofile(output_video_path, audio_codec="aac")
 
 
@@ -253,9 +254,23 @@ def generate_video_from_frames_array(frames_array: np.ndarray, video_path: str, 
     print("Created video:", f"file://{Path(video_path).absolute()}")
 
 
+def generate_video_from_frames_directory(
+    frames_dir: str, video_path: Union[str, Path] = None, fps=10,
+):
+    frames_list = natsorted(glob.glob(f"{frames_dir}/*"))
+    if video_path is None:
+        video_path = Path(frames_dir).parent / append2file_name(
+            Path(frames_dir).name, "output.mp4"
+        )
+
+    generate_video_from_frames_paths(
+        frames_list, video_path, fps, delete_frames_files=False
+    )
+
+
 def generate_video_from_frames_paths(
     frames_list: List[str],
-    video_path: Union[str, Path],
+    video_path: Union[str, Path] = None,
     fps=10,
     delete_frames_files=False,
 ):
@@ -264,9 +279,13 @@ def generate_video_from_frames_paths(
     video_path: str should
     delete_frames_files:bool, move frames to Trash bin
     """
+    if video_path is None:
+        video_path = "output.mp4"
     img_array = []
     size = None
-    for filename in frames_list:
+    for filename in tqdm(
+        frames_list, total=len(frames_list), desc="generate video from frames"
+    ):
         img = cv2.imread(str(filename))
         if delete_frames_files is True:
             send2trash(str(filename))
@@ -287,7 +306,7 @@ def generate_video_from_frames_paths(
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
-    print("Created video:", f"file://{Path(video_path).absolute()}")
+    print("\n Created video:", f"file://{Path(video_path).absolute()}")
 
 
 @timeit_decorator
