@@ -1,3 +1,5 @@
+import copy
+
 import PIL
 from PIL import Image
 from typing import Union, Tuple
@@ -7,13 +9,39 @@ import numpy as np
 import torch
 
 
-def xywh2xyxy(x):
-    boxes = x.clone()
-    boxes[:, 0] = x[:, 0] - x[:, 2] / 2
-    boxes[:, 1] = x[:, 1] - x[:, 3] / 2
-    boxes[:, 2] = x[:, 0] + x[:, 2] / 2
-    boxes[:, 3] = x[:, 1] + x[:, 3] / 2
-    return boxes
+def bbox_xyxy2xywh(bbox_xyxy):
+    """Transform the bbox format from x1y1x2y2 to xywh.
+
+    Args:
+        bbox_xyxy (np.ndarray): Bounding boxes (with scores), shaped (n, 4) or
+            (n, 5). (left, top, right, bottom, [score])
+
+    Returns:
+        np.ndarray: Bounding boxes (with scores),
+          shaped (n, 4) or (n, 5). (left, top, width, height, [score])
+    """
+    bbox_xywh = bbox_xyxy.copy()
+    bbox_xywh[:, 2] = bbox_xywh[:, 2] - bbox_xywh[:, 0]
+    bbox_xywh[:, 3] = bbox_xywh[:, 3] - bbox_xywh[:, 1]
+
+    return bbox_xywh
+
+
+def bbox_xywh2xyxy(bbox_xywh):
+    """Transform the bbox format from xywh to x1y1x2y2.
+
+    Args:
+        bbox_xywh (ndarray): Bounding boxes (with scores),
+            shaped (n, 4) or (n, 5). (left, top, width, height, [score])
+    Returns:
+        np.ndarray: Bounding boxes (with scores), shaped (n, 4) or
+          (n, 5). (left, top, right, bottom, [score])
+    """
+    bbox_xyxy = bbox_xywh.copy()
+    bbox_xyxy[:, 2] = bbox_xyxy[:, 2] + bbox_xyxy[:, 0]
+    bbox_xyxy[:, 3] = bbox_xyxy[:, 3] + bbox_xyxy[:, 1]
+
+    return bbox_xyxy
 
 
 def plot_one_number(centroid, img, color=None, label=None):
@@ -39,7 +67,7 @@ def plot_one_number(centroid, img, color=None, label=None):
     return img
 
 
-def plot_one_box(box, img, color=None, label=None):
+def plot_one_bbox(box, img, color=None, label=None):
     color = color or [np.random.randint(0, 255) for _ in range(3)]
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
     cv2.rectangle(img, p1, p2, color, 2, lineType=cv2.LINE_AA)
