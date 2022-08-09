@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 import cv2
 import numpy as np
 import seaborn as sns
+from matplotlib import cm
 
 
 def closest_color(list_of_colors, color):
@@ -58,6 +59,10 @@ def get_masked_mean_color(img: np.ndarray, cv_mask:np.ndarray) -> Tuple:
 
     return img.mean(0)
 
+def gen_color_map(n_colors=10, color_map='rainbow'):
+    # colors = cm.rainbow(np.linspace(0, 1, n_colors))
+    colors = cm.hsv(np.linspace(0, 1, n_colors))
+    return colors
 palette_100 = {count: [int(255 * j) for j in i] for count, i in enumerate(sns.color_palette("Spectral", 100))}
 palette_basic = {'b': (0, 0, 128),
            'g': (0, 128, 0),
