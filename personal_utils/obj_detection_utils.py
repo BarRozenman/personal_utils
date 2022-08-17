@@ -86,7 +86,7 @@ def plot_one_bbox(box, img, color=None, label=None):
             thickness=1,
             lineType=cv2.LINE_AA,
         )
-
+    return img
 
 def scale_boxes(boxes, orig_shape, new_shape):
     if boxes.ndim == 1:
