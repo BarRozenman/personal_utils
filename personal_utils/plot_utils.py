@@ -140,14 +140,12 @@ def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
         labels_names = range(len(np.unique(cluster_labels)))
     if isinstance(cluster_labels, list):
         cluster_labels = np.array(cluster_labels)
-    markers = ["o", ",", "x", "+", "v", "^", "<", ">", "s", "d", "."][
-        : len(labels_names)
-    ]
+    markers = itertools.cycle(["o", ",", "x", "+", "v", "^", "<", ">", "s", "d", "."])
     colors = cm.rainbow(np.linspace(0, 1, len(labels_names)))
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     if gt_y is None:
-        for i, t in enumerate(set(cluster_labels)):
+        for i, (t,mrk) in enumerate(zip(set(cluster_labels),markers)):
             idx = cluster_labels == t
             ax.scatter(
                 x[idx, 0][:shown_amount],
@@ -156,7 +154,7 @@ def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
                 label=t,
                 s=180,
                 c=colors[i].reshape(1, 4),
-                marker=markers[i],
+                marker=mrk,
                 alpha=0.5,
             )
     else:
