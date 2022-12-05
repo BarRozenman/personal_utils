@@ -34,7 +34,7 @@ def read_file(file_path: Union[str, Path]) -> np.ndarray:
 
 
 def read_pfm(file_path: str) -> np.ndarray:
-    """ Read a PFM (Portable FloatMap) file, and return a numpy array 
+    """Read a PFM (Portable FloatMap) file, and return a numpy array
 
     Args:
         file_path (str): path to .pfm file

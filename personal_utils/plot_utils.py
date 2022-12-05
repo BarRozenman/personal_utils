@@ -47,7 +47,7 @@ def scatter_multiple_images(
     images: List[Union[str, Path, np.ndarray]],
     ax=None,
     zoom: float = 0.5,
-    shown_amount='max'
+    shown_amount="max",
 ):
     if shown_amount == "max":
         shown_amount = len(images)
@@ -58,7 +58,7 @@ def scatter_multiple_images(
         ).astype(int)
     """show the image at the gi ven coordinates"""
     artists = []
-    for idx,(curr_x, curr_y, im) in enumerate(zip(x, y, images)):
+    for idx, (curr_x, curr_y, im) in enumerate(zip(x, y, images)):
         if im is None:
             continue
         if idx not in rand_indexes:
@@ -145,7 +145,7 @@ def scatter_clustering_with_gt_labels_in_3d(  # to do refactor
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     if gt_y is None:
-        for i, (t,mrk) in enumerate(zip(set(cluster_labels),markers)):
+        for i, (t, mrk) in enumerate(zip(set(cluster_labels), markers)):
             idx = cluster_labels == t
             ax.scatter(
                 x[idx, 0][:shown_amount],
@@ -260,7 +260,9 @@ def scatter_clustering_with_gt_labels_in_2d(
     fig, ax = plt.subplots()
     colors = cm.jet(np.linspace(0, 1, len(np.unique(cluster_labels))))
     np.random.shuffle(colors)
-    cluster_labels_dict = dict(zip(np.unique(cluster_labels), range(len(cluster_labels))))
+    cluster_labels_dict = dict(
+        zip(np.unique(cluster_labels), range(len(cluster_labels)))
+    )
     gt_labels_dict = dict(zip(np.unique(gt_y), gt_labels_names))
     if gt_y is None:
         for t, color, marker in zip(set(cluster_labels), colors, markers):
@@ -276,7 +278,7 @@ def scatter_clustering_with_gt_labels_in_2d(
             )
         # plt.scatter(X_red[:, 0], X_red[:, 1])
     else:
-        aaa= []
+        aaa = []
         for i in range(X_red.shape[0]):
             if i not in rand_indexes:
                 continue

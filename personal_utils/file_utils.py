@@ -392,17 +392,13 @@ def transform_all_images_to_jpg_in_dir(dir_path: str):
 def duplicate_directory_tree(input_path, output_path, exist_ok=False):
     """duplicating directory structure (folders only, without files) to a new give path, if the given output path exists and
     contains any files nothing will happen until a dir without files is given"""
-    if (
-        [
-            Path(dir).relative_to(input_path)
-            for dir in (glob(f"{input_path}/**/", recursive=True))
-        ]
-        == [
-            Path(dir).relative_to(output_path)
-            for dir in (glob(f"{output_path}/**/", recursive=True))
-        ]
-        and exist_ok
-    ):
+    if [
+        Path(dir).relative_to(input_path)
+        for dir in (glob(f"{input_path}/**/", recursive=True))
+    ] == [
+        Path(dir).relative_to(output_path)
+        for dir in (glob(f"{output_path}/**/", recursive=True))
+    ] and exist_ok:
         logging.getLogger(__name__).info(
             f"directory tree already exists and match the input dir tree and exist_ok is True, skipping {duplicate_directory_tree.__name__} "
         )
@@ -451,7 +447,7 @@ def duplicate_directory_tree(input_path, output_path, exist_ok=False):
 
 
 def check_if_cache_file_exists(cache_file_path):
-    """check if cache file exists by removing the time stamp from file name """
+    """check if cache file exists by removing the time stamp from file name"""
     pass
     # match = re.search(Flags.timestamp_regex, file_path)
     # re.search(Flags.timestamp_regex, file_path)[0]

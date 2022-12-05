@@ -68,7 +68,8 @@ def plot_one_number(centroid, img, color=None, label=None):
 
 
 def plot_one_bbox(box, img, color=None, label=None):
-    color = color or [np.random.randint(0, 255) for _ in range(3)]
+    if color is None:
+        color = [np.random.randint(0, 255) for _ in range(3)]
     p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
     cv2.rectangle(img, p1, p2, color, 2, lineType=cv2.LINE_AA)
 
@@ -87,6 +88,7 @@ def plot_one_bbox(box, img, color=None, label=None):
             lineType=cv2.LINE_AA,
         )
     return img
+
 
 def scale_boxes(boxes, orig_shape, new_shape):
     if boxes.ndim == 1:

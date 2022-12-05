@@ -10,19 +10,23 @@ def closest_color(list_of_colors, color):
     # Find the closest color to the detected one based on the predefined palette
     colors = np.array(list_of_colors)
     color = np.array(color)
-    distances = np.sqrt(np.sum((colors-color)**2,axis=1))
-    index_of_shortest = np.where(distances==np.amin(distances))
+    distances = np.sqrt(np.sum((colors - color) ** 2, axis=1))
+    index_of_shortest = np.where(distances == np.amin(distances))
     shortest_distance = colors[index_of_shortest]
 
     return shortest_distance
+
+
 # Color Detection with K-means
-def detect_color(img: np.ndarray, cv_mask:np.ndarray, palette: Dict[str,Tuple]=None) -> Tuple:
+def detect_color(
+    img: np.ndarray, cv_mask: np.ndarray, palette: Dict[str, Tuple] = None
+) -> Tuple:
     if palette is None:
         palette = palette_basic
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     # img = img.reshape((img.shape[1] * img.shape[0], 3))
     img = img[cv_mask == 1, :]
-    np.sum(img.mean(0)-np.asarray(list(palette.values())))
+    np.sum(img.mean(0) - np.asarray(list(palette.values())))
     # kmeans = KMeans(n_clusters=2)
     # s = kmeans.fit(img)
     #
@@ -46,7 +50,8 @@ def detect_color(img: np.ndarray, cv_mask:np.ndarray, palette: Dict[str,Tuple]=N
 
     return assigned_color
 
-def get_masked_mean_color(img: np.ndarray, cv_mask:np.ndarray) -> Tuple:
+
+def get_masked_mean_color(img: np.ndarray, cv_mask: np.ndarray) -> Tuple:
     """
 
     :param img: BRG! image that will be converted to RGB
@@ -59,16 +64,24 @@ def get_masked_mean_color(img: np.ndarray, cv_mask:np.ndarray) -> Tuple:
 
     return img.mean(0)
 
-def gen_color_map(n_colors=10, color_map='rainbow'):
+
+def gen_color_map(n_colors=10, color_map="rainbow"):
     # colors = cm.rainbow(np.linspace(0, 1, n_colors))
     colors = cm.hsv(np.linspace(0, 1, n_colors))
     return colors
-palette_100 = {count: [int(255 * j) for j in i] for count, i in enumerate(sns.color_palette("Spectral", 100))}
-palette_basic = {'b': (0, 0, 128),
-           'g': (0, 128, 0),
-           'r': (255, 0, 0),
-           'c': (0, 192, 192),
-           'm': (192, 0, 192),
-           'y': (192, 192, 0),
-           'k': (0, 0, 0),
-           'w': (255, 255, 255)}
+
+
+palette_100 = {
+    count: [int(255 * j) for j in i]
+    for count, i in enumerate(sns.color_palette("Spectral", 100))
+}
+palette_basic = {
+    "b": (0, 0, 128),
+    "g": (0, 128, 0),
+    "r": (255, 0, 0),
+    "c": (0, 192, 192),
+    "m": (192, 0, 192),
+    "y": (192, 192, 0),
+    "k": (0, 0, 0),
+    "w": (255, 255, 255),
+}

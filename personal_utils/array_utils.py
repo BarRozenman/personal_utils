@@ -1,21 +1,25 @@
 import netCDF4
 import xarray as xr
 
+
 def _expand_variable(nc_variable, data, expanding_dim, nc_shape, added_size):
     # For time deltas, we must ensure that we use the same encoding as
     # what was previously stored.
     # We likely need to do this as well for variables that had custom
     # econdings too
-    if hasattr(nc_variable, 'calendar'):
+    if hasattr(nc_variable, "calendar"):
         data.encoding = {
-            'units': nc_variable.units,
-            'calendar': nc_variable.calendar,
+            "units": nc_variable.units,
+            "calendar": nc_variable.calendar,
         }
     data_encoded = xr.conventions.encode_cf_variable(data)  # , name=name)
     left_slices = data.dims.index(expanding_dim)
     right_slices = data.ndim - left_slices - 1
-    nc_slice = (slice(None),) * left_slices + (slice(nc_shape, nc_shape + added_size),) + (slice(None),) * (
-        right_slices)
+    nc_slice = (
+        (slice(None),) * left_slices
+        + (slice(nc_shape, nc_shape + added_size),)
+        + (slice(None),) * (right_slices)
+    )
     nc_variable[nc_slice] = data_encoded.data
 
 
@@ -26,13 +30,13 @@ def append_to_netcdf(filename, ds_to_append, unlimited_dims):
     if len(unlimited_dims) != 1:
         # TODO: change this so it can support multiple expanding dims
         raise ValueError(
-            "We only support one unlimited dim for now, "
-            f"got {len(unlimited_dims)}.")
+            "We only support one unlimited dim for now, " f"got {len(unlimited_dims)}."
+        )
 
     unlimited_dims = list(set(unlimited_dims))
     expanding_dim = unlimited_dims[0]
 
-    with xr.DataArray.rea(filename, mode='a') as nc:
+    with xr.DataArray.rea(filename, mode="a") as nc:
         nc_dims = set(nc.dimensions.keys())
 
         nc_coord = nc[expanding_dim]

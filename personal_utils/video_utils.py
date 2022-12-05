@@ -103,7 +103,10 @@ def break_video2frames(
         frame_write_success = cv2.imwrite(frame_path, image)  # save frame as JPG file
 
 
-def video2array(curr_video_path: str, extraction_fps: int = None,) -> np.ndarray:
+def video2array(
+    curr_video_path: str,
+    extraction_fps: int = None,
+) -> np.ndarray:
     """
     extract frames from video and return numpy array
     :param curr_video_path:
@@ -255,7 +258,9 @@ def generate_video_from_frames_array(frames_array: np.ndarray, video_path: str, 
 
 
 def generate_video_from_frames_directory(
-    frames_dir: str, video_path: Union[str, Path] = None, fps=10,
+    frames_dir: str,
+    video_path: Union[str, Path] = None,
+    fps=10,
 ):
     frames_list = natsorted(glob.glob(f"{frames_dir}/*"))
     if video_path is None:
@@ -489,3 +494,38 @@ def combine_output_files(
         for f in input_videos_paths:
             os.remove(f)
     os.remove("list_of_output_files.txt")
+
+
+import cv2
+
+
+def plot_bbox_on_video():
+    # reading the input
+    cap = cv2.VideoCapture("input.mp4")
+
+    output = cv2.VideoWriter(
+        "output.avi", cv2.VideoWriter_fourcc(*"MPEG"), 30, (1080, 1920)
+    )
+
+    while True:
+        ret, frame = cap.read()
+        if ret:
+
+            # adding filled rectangle on each frame
+            cv2.rectangle(frame, (100, 150), (500, 600), (0, 255, 0), -1)
+
+            # writing the new frame in output
+            output.write(frame)
+            cv2.imshow("output", frame)
+            if cv2.waitKey(1) & 0xFF == ord("s"):
+                break
+        else:
+            break
+
+    cv2.destroyAllWindows()
+    output.release()
+    cap.release()
+
+
+if __name__ == "__main__":
+    main()

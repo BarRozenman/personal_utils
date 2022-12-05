@@ -1,7 +1,3 @@
-from typing import Union
-
-import numpy as np
-from PIL import Image
 import json
 import logging
 import os
@@ -13,16 +9,19 @@ from typing import List, Tuple, Union
 import PIL
 import cv2
 import matplotlib.cm as cm
+import numpy as np
 import pandas as pd
 import scipy.misc
 from PIL import Image
+from PIL import Image
+from torch import Tensor
+from torchvision.transforms import transforms
 
+from . import file_utils
 from .ProgressBar import print_progress_bar
 from .exceptions import ImageResizingException
 from .file_utils import get_all_images_paths_in_dir, update_renaming_doc
 from .flags import flags
-
-from . import file_utils
 
 
 def new_coordinates_after_resize_img(
@@ -48,7 +47,7 @@ def image_tracking(im: np.ndarray = None, img_path: str = None) -> np.ndarray:
         plt.imshow(im)
         plt.show()
         plt.imshow(im1 - im)
-        plt.title(np.sum(im1 - im) / 10 ** 6)
+        plt.title(np.sum(im1 - im) / 10**6)
         plt.show()
     im[im < 100] = 0
     vs = 30
@@ -495,7 +494,7 @@ def resize_image(
     return resized_img
 
 
-def fig2array(fig: "plt.Figure", return_RGB=False) -> np.ndarray:
+def fig2array(fig: "plt.Figure", return_RGB: bool = False) -> np.ndarray:
     """
     by default returns a BGR channels to conform cv2 format
     fig = plt.figure()
@@ -518,6 +517,38 @@ def fig2array(fig: "plt.Figure", return_RGB=False) -> np.ndarray:
         arr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)  # returning BGR
     return arr
 
+
+def get_contrast(img: Tensor = None, img_path: str = None):
+    # read image
+    if img_path:
+        img = cv2.imread(img_path)
+    else:
+        img = np.array(transforms.ToPILImage()(img))
+    # convert to LAB color space
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+
+    # separate channels
+    L, A, B = cv2.split(lab)
+
+    # compute minimum and maximum in 5x5 region using erode and dilate
+    kernel = np.ones((5, 5), np.uint8)
+    min = cv2.erode(
+        L, kernel, iterations=1
+    )  # setting the minimal value in the vicinity
+    max = cv2.dilate(L, kernel, iterations=1)
+
+    # convert min and max to floats
+    min = min.astype(np.float64)
+    max = max.astype(np.float64)
+
+    # compute local contrast
+    contrast = (max - min) / (max + min)
+
+    # get average across whole image
+    average_contrast = 100 * np.mean(contrast)
+
+    print(str(average_contrast) + "%")
+    return [average_contrast]
 
 
 if __name__ == "__main__":
