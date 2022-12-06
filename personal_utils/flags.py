@@ -10,7 +10,9 @@ class Flags(object):
     eval_subset_size: [bool,int], take a subset of the total dataset to run, use int to choose the subset size
     """
 
-    debug: bool = False
+    debug: bool = (
+        False  # for backwards compatibility, in the future use verbose instead of debug
+    )
     verbose: bool = False
     timestamp: str = None
     timestamp_seconds: str = None
@@ -19,7 +21,6 @@ class Flags(object):
     use_cache: bool = False
     eval_subset_size: int = None
     counter: int = 0
-    mlflow_run_id: str = None
     random_seed: int = None
     clear_cache: bool = False
     timestamp_regex: str = r"_\d{4}-\d{2}-\d{2}_\d{2}\d{2}"

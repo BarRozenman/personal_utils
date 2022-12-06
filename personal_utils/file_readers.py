@@ -43,7 +43,6 @@ def read_pfm(file_path: str) -> np.ndarray:
         np.ndarray: float image
     """
     with Path(file_path).open("rb") as pfm_file:
-
         line1, line2, line3 = (
             pfm_file.readline().decode("latin-1").strip() for _ in range(3)
         )

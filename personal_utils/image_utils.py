@@ -19,7 +19,6 @@ from torchvision.transforms import transforms
 
 from . import file_utils
 from .ProgressBar import print_progress_bar
-from .exceptions import ImageResizingException
 from .file_utils import get_all_images_paths_in_dir, update_renaming_doc
 from .flags import flags
 
@@ -162,7 +161,7 @@ def fourier_power(image: np.ndarray = None) -> np.ndarray:
 def fourier_phase(image: np.ndarray = None) -> np.ndarray:
     """
     Apply fourier transform and centering on given image.
-    If image contains multiple channels - apply fourier on each of them seperately
+    If image contains multiple channels - apply fourier on each of them separately
     @param img:
     @return:
     """
@@ -307,9 +306,9 @@ def resize_and_crop_img_to_fit_new_size(
 ) -> PIL.Image:
     """
 
-    this function will try to fit the input "img" as best as possible to the "target_size" by resize and cropping when
+    this function will try to fit the input "img" as good as possible to the "target_size" by resize and cropping when
     necessary
-    (the upper part of an image will by cropped by default unless input "crop_flag" is different not None)
+    (the upper part of an image will be cropped by default unless input "crop_flag" is different not None)
 
     Args:
         img (PIL.Image): input image
@@ -360,12 +359,12 @@ def add_padding_to_image(
     img: PIL.Image, target_size: Tuple, background_color: Tuple = (0, 0, 0)
 ) -> PIL.Image:
     """
-    pad image with background color so it will fit a certain target shape.
+    pad image with background color, so it will fit a certain target shape.
 
     it will add background to both sides (upo and down of left and right, depending on the images size and target
     size) until the images will be at the target size.
 
-    if the images is to large it will be resize to a smaller size before padding
+    if the images is to large it will be resized to a smaller size before padding
 
     Args:
         img:
@@ -404,14 +403,14 @@ def add_padding_to_image(
         return padded_img
 
 
-def gray_scale_entire_dir(dir):
+def gray_scale_entire_dir(dir_):
     res = input(
-        f"this will override all images in dir {dir}! what to continue? (yes/no)"
+        f"this will override all images in dir {dir_}! what to continue? (yes/no)"
     )
     if res != "yes":
         print("cancle operation, exiting...")
         return
-    img_p = get_all_images_paths_in_dir(dir)
+    img_p = get_all_images_paths_in_dir(dir_)
     im_obj = [cv2.imread(i) for i in img_p]
     gray = [cv2.cvtColor(i, cv2.COLOR_BGR2GRAY) for i in im_obj if i is not None]
     [cv2.imwrite(p, i) for i, p in zip(gray, img_p)]
@@ -458,7 +457,7 @@ def resize_image(
     image: np.ndarray, new_size: Union[Tuple, List], interpolation: int = cv2.INTER_AREA
 ):
     """
-    same as resize_image but we can enter the new size as ndarray.shape tuple or list and it set the width and
+    same as resize_image, but we can enter the new size as ndarray.shape tuple or list, and it set the width and
     height (since the resize_image  argument  is transposed by default...)
 
     Args:
@@ -474,11 +473,11 @@ def resize_image(
 
     """
     if np.asarray(new_size).shape[0] < 2:
-        raise ImageResizingException(
+        raise Exception(
             '"new_size" should be a list of tuple with (height,width) values only'
         )
     elif np.asarray(image).ndim < 2:
-        raise ImageResizingException(
+        raise Exception(
             '"image" should be a numpy array of an image with shape (height,width,RGB)'
         )
 
@@ -489,7 +488,7 @@ def resize_image(
             np.asarray(image), (width, height), interpolation=interpolation
         )
     except Exception as e:
-        raise ImageResizingException(e)
+        raise Exception(e)
 
     return resized_img
 
@@ -549,14 +548,3 @@ def get_contrast(img: Tensor = None, img_path: str = None):
 
     print(str(average_contrast) + "%")
     return [average_contrast]
-
-
-if __name__ == "__main__":
-    pass
-    resize_and_pad_all_imgs_in_folder_tree(
-        "/home/barroz/BrainVivo_data/datasets/friends_seinfeld_original_images_mri_struct",
-        "/home/barroz/BrainVivo_data/datasets/friends_seinfeld_presented_images_mri_struct",
-        pad_img=True,
-    )
-    # image_tracking(img_path=r"C:\Git\dev\datasets\AM_test2\original_images\e.jpg")
-    # rename_imgs_by_to_ratio_proximity(input_dir=r"C:\Users\Bar Rozenman\Desktop\DANA",output_dir=r"C:\Users\Bar Rozenman\Desktop\D1")

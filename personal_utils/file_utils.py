@@ -8,7 +8,6 @@ import platform
 import re
 import shutil
 import stat
-import sys
 import warnings
 from collections import OrderedDict, Counter
 from glob import glob
@@ -24,6 +23,8 @@ import wget
 from PIL import Image
 from natsort import natsorted
 
+from user_input_utils import query_yes_no
+
 
 def update_renaming_doc(input_dir: str, sink_dir: str, df_renaming_doc: pd.DataFrame):
     """
@@ -35,7 +36,8 @@ def update_renaming_doc(input_dir: str, sink_dir: str, df_renaming_doc: pd.DataF
 
     Returns:
 
-    records the renaming DataFrame and if an exiting renaming_doc.csv file already exits then a new column will be added to it"""
+    records the renaming DataFrame and if an exiting renaming_doc.csv file already exits then a new column will be added
+     to it"""
     if set(df_renaming_doc.columns) != {"original_path", "new_path"}:
         raise Exception(
             'argument "df_renaming_doc" must include the future columns: [original_path,new_path]'
@@ -163,17 +165,12 @@ def download_files_and_write_to_individual_folders(
             print(f"failed {file_name} with exception {e}")
 
 
-def get_env_brv_dataset() -> str:
-    os_dataset_dir = os.getenv("BRV_DATASETS")
-    return os_dataset_dir
-
-
-def normalize_dataset_path(dataset_path) -> str:
+def normalize_dataset_path(dataset_path, env_var_name) -> str:
     dataset_path = str(dataset_path) if isinstance(dataset_path, Path) else dataset_path
     if not isinstance(dataset_path, str):
         return
     if not os.path.exists(dataset_path):
-        env_datasets = Path(get_env_brv_dataset())
+        env_datasets = Path(os.getenv(env_var_name))
         if env_datasets is not None:
             dataset_path = env_datasets / dataset_path
             if (
@@ -339,37 +336,6 @@ def delete_all_files_in_folder_and_subfolders(path):
     for root, dirs, files in os.walk(path, topdown=True):
         for file in files:
             os.remove(os.path.join(root, file))
-
-
-def query_yes_no(question: str, default: str = "no") -> bool:
-    """Ask a yes/no question via raw_input() and return their answer.
-
-    "question" is a string that is presented to the user.
-    "default" is the presumed answer if the user just hits <Enter>.
-            It must be "yes" (the default), "no" or None (meaning
-            an answer is required of the user).
-
-    The "answer" return value is True for "yes" or False for "no".
-    """
-    valid = {"yes": True, "y": True, "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == "":
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
 def transform_all_images_to_jpg_in_dir(dir_path: str):

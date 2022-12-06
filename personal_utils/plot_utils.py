@@ -276,9 +276,7 @@ def scatter_clustering_with_gt_labels_in_2d(
                 marker=marker,
                 alpha=0.5,
             )
-        # plt.scatter(X_red[:, 0], X_red[:, 1])
     else:
-        aaa = []
         for i in range(X_red.shape[0]):
             if i not in rand_indexes:
                 continue
@@ -301,16 +299,3 @@ def scatter_clustering_with_gt_labels_in_2d(
     plt.axis("off")
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-
-
-# def scatter_data_in_3d(features: np.ndarray, labels: np.ndarray, dim_reduction_method='pca'):
-#     if features.shape[1] > 3:
-#         if dim_reduction_method == 'pca':
-#             feat = PCA(3).fit_transform(features)
-#         else:
-#             feat = TSNE(3).fit_transform(features)
-#     else:
-#         feat = copy.deepcopy(features)
-#     plt.figure()
-#     for i in set(labels):
-#         plt.scatter(*feat[labels == i, :].T)

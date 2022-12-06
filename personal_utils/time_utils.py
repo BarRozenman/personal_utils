@@ -1,5 +1,4 @@
 import time
-import signal
 
 import signal
 from contextlib import contextmanager

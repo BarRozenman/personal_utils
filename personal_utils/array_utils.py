@@ -1,4 +1,3 @@
-import netCDF4
 import xarray as xr
 
 
@@ -52,13 +51,3 @@ def append_to_netcdf(filename, ds_to_append, unlimited_dims):
 
             nc_variable = nc[name]
             _expand_variable(nc_variable, data, expanding_dim, nc_shape, added_size)
-
-
-# from xarray.tests.test_dataset import create_append_test_data
-# from xarray.testing import assert_equal
-#
-# ds, ds_to_append, ds_with_new_var = create_append_test_data()
-#
-# filename = 'test_dataset.nc'
-# ds.to_netcdf(filename, mode='w', unlimited_dims=['time'])
-# append_to_netcdf('test_dataset.nc', ds_to_append, unlimited_dims='time')
