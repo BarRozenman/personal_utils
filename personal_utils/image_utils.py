@@ -302,18 +302,18 @@ def resize_and_pad_all_imgs_in_folder_tree(
 
 
 def resize_and_crop_img_to_fit_new_size(
-    img: PIL.Image, target_size: Tuple, crop_flag: str = None
+    img: PIL.Image, target_size: Tuple, crop_flag: str = 'middle'
 ) -> PIL.Image:
     """
 
-    this function will try to fit the input "img" as good as possible to the "target_size" by resize and cropping when
+    this function will try to fit the input "img" as best as possible to the "target_size" by resize and cropping when
     necessary
-    (the upper part of an image will be cropped by default unless input "crop_flag" is different not None)
+    (the upper part of an image will by cropped by default unless input "crop_flag" is different not None)
 
     Args:
         img (PIL.Image): input image
         target_size (tuple): the new file of the image
-        crop_flag (str): 'top' or 'bottom'
+        crop_flag (str): 'top' or 'bottom', the deault is 'middle'
 
     Returns: (PIL.Image)
 
@@ -339,20 +339,22 @@ def resize_and_crop_img_to_fit_new_size(
         temp_img_shape[1] - target_height,
     ]
 
-    if crop_flag is None:
-        left, top, right, bottom = 0, 0, target_width, target_height
-    elif crop_flag == "bottom":
+    if crop_flag == "bottom":
         left, top, right, bottom = (
             0,
             height_diff,
             target_width,
             height_diff + target_height,
         )
-    else:
+    elif crop_flag == "top":
         left, top, right, bottom = 4 * [None]
+    elif crop_flag == "middle":
+        left, top, right, bottom = 0, 0, target_width, target_height
+
     img = img.crop((left, top, right, bottom))  # ((left, top, right, bottom))
 
     return img
+
 
 
 def add_padding_to_image(
